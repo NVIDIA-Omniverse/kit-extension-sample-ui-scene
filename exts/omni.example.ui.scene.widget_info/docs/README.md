@@ -5,6 +5,6 @@ the Widget can have any type of Omni.ui element including being interactive as s
 
 The extension showcase view concepts
 
-Similar to the other ui.scene example it show yo to setup the viewport scene in #viewport_scene.py#
-Then there is the Manipulator object that managed the presentation of the item #widget_info_manipulator.py#
-finally the #widget_info_model.py# manage the model that connect the world with the manipulator
+Similar to the other ui.scene example it show yo to setup the viewport scene in **viewport_scene.py**
+Then there is the Manipulator object that managed the presentation of the item **widget_info_manipulator.py**
+finally the **widget_info_model.py** manage the model that connect the world with the manipulator
