@@ -2,15 +2,15 @@
 
 ## Object Info
 
-![Object Info](exts/omni.example.ui.scene.object_info/data/preview.png)
+![Object Info](exts/omni.example.ui_scene.object_info/data/preview.png)
 
 ## Widget Info
 
-![Widget Info](exts/omni.example.ui.scene.widget_info/data/preview.png)
+![Widget Info](exts/omni.example.ui_scene.widget_info/data/preview.png)
 
 ## Light Manipulator
 
-![Light Manipulator](exts/omni.example.ui.scene.light_manipulator/data/preview.png)
+![Light Manipulator](exts/omni.example.ui_scene.light_manipulator/data/preview.png)
 
 
 ## Adding one of those Extension
