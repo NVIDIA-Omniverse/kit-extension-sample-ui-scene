@@ -1,0 +1,1 @@
+from .test_manipulator import TestLightManipulator
