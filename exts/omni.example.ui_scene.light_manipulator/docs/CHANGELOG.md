@@ -2,6 +2,10 @@
 
 omni.example.ui_scene.light_manipulator
 
+## [1.1.1] - 2022-6-21
+### Added
+- Documentation
+
 ## [1.1.0] - 2022-6-06
 ### Changed
 - Removed other lights except RectLight
