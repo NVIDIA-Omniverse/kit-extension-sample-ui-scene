@@ -2,15 +2,15 @@
 
 ## Object Info
 
-![Object Info](exts/omni.example.ui_scene.object_info/data/preview.png)
+[![Object Info](exts/omni.example.ui_scene.object_info/data/preview.png)](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/tree/main/exts/omni.example.ui_scene.object_info)
 
 ## Widget Info
 
-![Widget Info](exts/omni.example.ui_scene.widget_info/data/preview.png)
+[![Widget Info](exts/omni.example.ui_scene.widget_info/data/preview.png)](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/tree/main/exts/omni.example.ui_scene.widget_info)
 
 ## Light Manipulator
 
-![Light Manipulator](exts/omni.example.ui_scene.light_manipulator/data/preview.png)
+[![Light Manipulator](exts/omni.example.ui_scene.light_manipulator/data/preview.png)](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/tree/main/exts/omni.example.ui_scene.light_manipulator)
 
 
 ## Adding one of those Extension
