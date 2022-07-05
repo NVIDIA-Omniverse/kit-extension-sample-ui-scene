@@ -28,7 +28,7 @@ It is required that you have completed the guide on [How to make an extension to
  # Step 1: Add Script to Object Info
    As this will be using the same scripts we established in `object info`, we will be creating the `object info widget` script in the same file structure. So, just as you did previously, create a new file in the folder with `extension.py`, `objectInfoModel.py`, and `objectInfoManipulator.py`. We will name this new script `widgetInfoManipulator.py`.
 
-   ![](./Images/widgetinfomanip_created.gif)
+   ![](./Images/widgetManipulatorCreated.gif)
 
    ## Step 1.1 Begin your code
    ### Theory
@@ -641,7 +641,7 @@ class WidgetInfoManipulator(sc.Manipulator):
 
  Here is what is created in thew viewport of Omniverse Code:
 
- ![](./Images/slider_working.gif)
+ ![](./Images/sliderWorking.gif)
 
  # Congratulations!
  You have successfully created a Widget Extension for the Object Info! 
