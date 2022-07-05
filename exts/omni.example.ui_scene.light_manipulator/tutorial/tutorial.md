@@ -13,15 +13,17 @@ In this guide, we will learn how to:
 ## Table of Content
 1. [Download the Starter Project](#1-download-the-starter-project)
 2. [Setting Line Style](#2-setting-line-style)
-3. [Drawing a Quad](#3-drawing-a-quad)
-4. [Drawing Thirds](#4-drawing-thirds)
-5. [Drawing a Crosshair](#5-drawing-a-crosshair)
-6. [Drawing Safe Area Rectangles](#6-drawing-safe-area-rectangles)
-7. [Congratulations!](#8-congratulations)
+3. [Building the Manipulator Transform](#3-building-the-manipulator-transform)
+4. [Gestures](#4-gestures)
+5. [Adding Intensity](#5-adding-intensity)
+6. [Scaling Everything](#6-scaling-everything)
+7. [Congratulations!](#7-congratulations)
 
 ## Prerequisites
 It is recommended to understand the concepts in the following tutorials before proceeding:
 * How to make an extension by spawning primitives ([Link](https://github.com/NVIDIA-Omniverse/sample-kit-extension-spawnPrims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md))
+
+It also recommended to have the Omniverse Code version `2022.1.2`.
 
 
 ## 1. Download the Starter Project
@@ -40,29 +42,28 @@ This extension will allow users to create an interactive rectangular light as sh
 Let's break down the [on_build](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Manipulator.on_build) function, which should look like this:
 
 ```python
-    def on_build(self):
-        """Called when the model is changed and rebuilds the whole slider"""
-        model = self.model
-        if not model:
-            return
+def on_build(self):
+    """Called when the model is changed and rebuilds the whole slider"""
+    model = self.model
+    if not model:
+        return
 
-        # if we don't have selection then just return
-        prim_path_item = model.prim_path
-        prim_path = prim_path_item.value if prim_path_item else None
-        if not prim_path:
-            return
-        
-        #TODO: Add Step 2.2
+    # if we don't have selection then just return
+    prim_path_item = model.prim_path
+    prim_path = prim_path_item.value if prim_path_item else None
+    if not prim_path:
+        return
+    
+    #TODO: Add Step 2.2
 
-        self.__root_xf = sc.Transform(model.get_as_floats(model.transform))
-        with self.__root_xf:
-            self._x_xform = sc.Transform()
-            with self._x_xform:
-                self._shape_xform = sc.Transform()
-                # Build the shape's transform
-                self._build_shape()
-                with self._shape_xform:
-
+    self.__root_xf = sc.Transform(model.get_as_floats(model.transform))
+    with self.__root_xf:
+        self._x_xform = sc.Transform()
+        with self._x_xform:
+            self._shape_xform = sc.Transform()
+            # Build the shape's transform
+            self._build_shape()
+            with self._shape_xform:
                 #TODO: Add Step 3.2
 
                 #TODO: Add Step 4.2
@@ -70,8 +71,7 @@ Let's break down the [on_build](https://docs.omniverse.nvidia.com/py/kit/source/
                 #TODO: Add Step 5.2
 
                 #TODO: Add Step 6.2
-
-        return
+                pass
 
 ```
 
