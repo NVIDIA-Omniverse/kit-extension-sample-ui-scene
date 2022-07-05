@@ -41,9 +41,9 @@ In this guide you will learn how to:
 # Step 1: Create an Extension
 
 
-> 📝 **Note:** For a more detailed introduction to creating an extension, please refer back to `Jen's tutorial` [link to tutorial]
+> 📝 **Note:** For a more detailed introduction to creating an extension, please refer back to [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawnprims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md)
 
-For this guide, we will briefly go over how to create an extension. If you have not completed `Jen's tutorial` it is recommended you pause here and complete that before moving forward.
+For this guide, we will briefly go over how to create an extension. If you have not completed [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawnprims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md) it is recommended you pause here and complete that before moving forward.
 
 ## Step 1.1: Create the extension template
   In Omniverse Code navigate to the `Extensions` tab and create a new extension by clicking the ➕ icon in the upper left corner and select `New Extension Template Project`. This may be familar from the Tutorial on how to Spawn Primatives.  
