@@ -147,7 +147,7 @@ At this point, when you navigate back to `Omniverse Code` and click the "Click M
  ### Theory
    In this new script, we will be creating the necessary information for the object information to be called, such as the selected primitive and tracking when the selection changes. We will also be creating a stage to be set later on. Before we move on to creating the code, we first need to create a new file. In the same file location as `extension.py` create a new file and name it `objectInfoModel.py`.
 
-  ![](./Images/objectInfoModel%20created.gif "objectInfoModel.py created")
+  ![](./Images/objectModelCreated.gif)
 
 
   <br>
@@ -571,7 +571,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 In this step we will be creating a new script that will reference the manipulator class for the object info that will be displayed in the viewport in another step ([see here for more information on the Manipulator Class in Omniverse](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html)).<br>
 Similar to when `objectInfoModel.py` was created, we will be creating a new script in the same folder. We will name this file `objectInfoManipulator.py`.
 
-![](./Images/objectinfomanipulator_created.gif)
+![](./Images/objectManipulatorCreated.gif)
 
 <br>
 
@@ -667,7 +667,7 @@ class ObjInfoManipulator(sc.Manipulator):
 
 We will add this script to the same folder and name it `viewportScene.py`.
 
-![](./Images/viewportScene%20created.gif)
+![](./Images/viewportSceneCreated.gif)
 
 This script will import not only from Omniverse but also from our Model and Manipulator, so we will begin there:
 
