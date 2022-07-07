@@ -4,7 +4,7 @@
 # Learning Objectives
 In this guide you will learn how to:
  - Create a Widget Extension 
- - Use omni.ui module
+ - Use Omniverse UI Framework
  - Create a label
  - (optional) Create a toggle button feature
  - (optional) Create a slider
