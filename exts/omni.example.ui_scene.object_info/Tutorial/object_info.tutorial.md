@@ -20,7 +20,7 @@ In this guide you will learn how to:
 
 
 
-> :bulb: Tip: Check that Viewport Utility Extension is turned ON in the extension manager: <br> ![](./Images/viewportUtilOn.PNG)
+> :exclamation: <span style="color:red"><b> WARNING: Check that Viewport Utility Extension is turned ON in the extension manager: </b></span> <br> ![](./Images/viewportUtilOn.PNG)
 
 # Table of Contents
 
