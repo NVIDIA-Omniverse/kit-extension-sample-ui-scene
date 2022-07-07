@@ -31,6 +31,8 @@ To get the assets for this hands-on lab, please clone the `tutorial-start` branc
 
 `https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene.git`
 
+Learn how to add extensions to the Omniverse Extension Manager in [this guide](https://github.com/NVIDIA-Omniverse/kit-extension-template).
+
 This tutorial will focus on the `light_manipulator.py` file found in the`/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator` directory. To learn more about the other files in the repository, please check the [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/sample-kit-extension-spawnPrims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md) tutorial.
 
 In particular, we will be focusing on the `LightManipulator` class, which will be created as an extension of the [Manipulator](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html) class.
@@ -132,7 +134,7 @@ def _build_shape(self):
 ```
 
 ### 3.2 Practice
-**TODO:** Now that we've created a transform, let's add a few lines to it. Copy the below code block under the `# Add Step 3.2` comment in `on_build`. Please check the alignment. Feel free to view the [completed function](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_manipulator.py) as a hint.
+**TODO:** Now that we've created a transform, let's add a few lines to it. Copy the below code block under the `# Add Step 3.2` comment in `on_build`. Please check the alignment of the python code. Feel free to view the [completed function](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_manipulator.py) as a hint.
 
 ```python
 # Build the shape geometry as unit-sized
@@ -219,7 +221,7 @@ shape4.gestures = [_DragGesture(self, [0], [-1]), horizontal_hover_gesture]
 ### 5.1 Theory
 While we have learned how to manipulate the light's height and width, it would be useful if users can define the intensity of the light also using the `DragGesture`.
 
-To make it clear to users they are using the z-axis of our light panel to modify it's intensity, we'll use arrows like so:
+To make it clear to users they are using the panel's local z-axis of our light panel to modify its intensity, we'll use arrows like so:
 
 ![](../data/intensity_s.png)
 
@@ -283,7 +285,7 @@ z4_arrow.gestures = gestures
 
 <details>
 <summary>Solution</summary>
-In <code>on_ended_fn</code>, the <code>visible</code> parameter should be set to <code>False</code>.
+In <code>on_ended_fn</code>, the <code>visible</code> parameter (the last argument of the function) should be set to <code>False</code>.
 </details>
 
 ### 6. Scaling Everything
@@ -291,7 +293,7 @@ In <code>on_ended_fn</code>, the <code>visible</code> parameter should be set to
 ### 6.1 Theory
 We've implemented all the critical features of the extension so far:
 * The ability to change the width and height of a light panel
-* The ability to change the intensity of a a light panel.
+* The ability to change the intensity of a light panel.
 
 In many 3D Graphics Engines, there is often a shortcut to scale all dimensions of an object at once. Let's add a few small rectangles at the corners of our light panel to allow users to scale width and height at the same time.
 
