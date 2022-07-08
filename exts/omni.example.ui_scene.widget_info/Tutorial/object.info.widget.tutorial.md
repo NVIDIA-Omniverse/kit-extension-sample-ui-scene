@@ -4,7 +4,7 @@
 # Learning Objectives
 In this guide you will learn how to:
  - Create a Widget Extension 
- - Use Omniverse Ui Framework
+ - Use Omniverse UI Framework
  - Create a label
  - (optional) Create a toggle button feature
  - (optional) Create a slider
@@ -26,13 +26,13 @@ It is required that you have completed the guide on [How to make an extension to
 
 
  # Step 1: Add Script to Object Info
-   As this will be using the same scripts we established in `object info`, we will be creating the `object info widget` script in the same file structure. So, just as you did previously, create a new file in the folder with `extension.py`, `objectInfoModel.py`, and `objectInfoManipulator.py`. We will name this new script `widgetInfoManipulator.py`.
+   As this will be using the same scripts we established in `object info`, we will be creating the `object info widget` module in the same file structure. So, just as you did previously, create a new file in the folder with `extension.py`, `objectInfoModel.py`, and `objectInfoManipulator.py`. We will name this new module `widgetInfoManipulator.py`.
 
    ![](./Images/widgetManipulatorCreated.gif)
 
    ## Step 1.1 Begin your code
    ### Theory
-   As with all of our previous scripts, we will start by importing from Omniverse, then begin our Widget Info Manipulator class to hold our functions. These functions will create a label for the object info to live in as well as updating the model for when the model is changed. 
+   As with all of our previous scripts, we will start by importing from Omniverse, then begin our `WidgetInfoManipulator` class to hold our functions. These functions will create a label for the object info to live in as well as updating the model for when the model is changed. 
 
    Let's go ahead and import from Omniverse at the top of our `widgetInfoManipulator.py` file, as so:
 
@@ -41,7 +41,7 @@ from omni.ui import scene as sc
 from omni.ui import color as cl
 import omni.ui as ui
    ```
-Now we will create the class `WidgetInfoManipulator` and assign the baseclass with the proper inheritence, as well as define our init method. In the init method, we will call the `destroy` function, so we will also define what will happen when this is called, as follows:
+Now we will create the class `WidgetInfoManipulator` and assign the baseclass with the proper inheritence, as well as define our `__init__` method. In the `__init__` method, we will call the `destroy` function, so we will also define what will happen when this is called, as follows:
 
 ```python
 ...
@@ -57,7 +57,7 @@ class WidgetInfoManipulator(sc.Manipulator):
 
 From here, we can begin building the widget. This widget will house our object info so we want to make it obvious in the viewport. We will accomplish this by structuring a box for the label with a background color to contrast it from the viewport. 
 
-Let's define this as `on_build_widgets` and use the `Omniverse Ui Framework` to create the label for this widget using `ZStack`. [See here for more documentation on Omniverse Ui Framework](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui/docs/index.html).
+Let's define this as `on_build_widgets` and use the `Omniverse UI Framework` to create the label for this widget in a `ZStack`. [See here for more documentation on Omniverse Ui Framework](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui/docs/index.html).
 
 ```python
 ...
@@ -65,7 +65,7 @@ Let's define this as `on_build_widgets` and use the `Omniverse Ui Framework` to 
         with ui.ZStack():
 ```
 
-Once we have established the Ui Framework, we can create the label for the widget using `ui.Rectangle` and set the border attributes and background color. We can also define the alignment of the label after setting the rectangle attributes, as so:
+Once we have established the UI layout, we can create the background for the widget using `ui.Rectangle` and set the border attributes and background color. We can then create the `ui.Label` and set its alignment, as so:
 
 ```python
 ...
@@ -87,7 +87,7 @@ With a Manipulator, we need to define an `on_build` function. This function is c
 
     def on_build(self):
         """Called when the model is changed and rebuilds the whole slider"""
-        self._root = sc.Transform(visibile=False)
+        self._root = sc.Transform(visible=False)
         with self._root:
             with sc.Transform(scale_to=sc.Space.SCREEN): 
                 with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 100, 0)):
@@ -145,7 +145,7 @@ class WidgetInfoManipulator(sc.Manipulator):
 
     def on_build(self):
         """Called when the model is changed and rebuilds the whole slider"""
-        self._root = sc.Transform(visibile=False)
+        self._root = sc.Transform(visible=False)
         with self._root:
             with sc.Transform(scale_to=sc.Space.SCREEN): 
                 with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 100, 0)):
@@ -171,7 +171,7 @@ class WidgetInfoManipulator(sc.Manipulator):
 
 # Step 2: Update Viewport and Extension
 ### Theory
-  Now that we have created a new script, it is important for us to bring this information into the viewport and update `extension.py` tor reflect these new changes.
+  Now that we have created the manipulator module, it is important for us to bring this information into the viewport and update `extension.py` to reflect these new changes.
 
   ## Step 2.1: Updating viewportScene.py
 Let's start by updating `viewportScene.py`, the viewport script we created in the Object Info guide. 
@@ -485,7 +485,7 @@ Here is what you should see in the viewport at this point:
 
 ## Step 4.1: Adding to widgetInfoManipulator.py
 
- Just as we used `Omniverse Ui Framework` to build the Object Info Widget in `widgetInfoManipulator.py` previously, we will be using Ui Framework again to build the slider into this widget. Again, this slider is an optional feature to the widget but is a great way to add utility. 
+ Just as we used `Omniverse UI Framework` to build the Object Info Widget in `widgetInfoManipulator.py` previously, we will be using UI Framework again to build the slider into this widget. Again, this slider is an optional feature to the widget but is a great way to add utility. 
 
  We will add this framework to `on_build_widgets` as so:
 
