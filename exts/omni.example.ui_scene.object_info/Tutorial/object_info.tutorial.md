@@ -2,7 +2,7 @@
 
 The object info extension displays the selected primitive’s Path and Type. This guide is great for first time extension builders.
 
-  > :memo: Visual Studio Code is the preferred IDE, hence forth we will be referring to it throughout this guide. 
+  > NOTE: Visual Studio Code is the preferred IDE, hence forth we will be referring to it throughout this guide. 
 
 # Learning Objectives
 
@@ -21,7 +21,7 @@ In this tutorial you learn how to:
 
 # Step 1: Create an Extension
 
-> 📝 **Note:** This is a review, if you know how to create an extension, feel free to skip this step.
+> **Note:** This is a review, if you know how to create an extension, feel free to skip this step.
 
 For this guide, we will briefly go over how to create an extension. If you have not completed [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawnprims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md) we recommend you pause here and complete that before moving forward.
 
@@ -51,9 +51,9 @@ A new extension template window and Visual Studio Code (our preferred IDE) will 
 Inside of the `config` folder, locate the `extension.toml` file. The script will look something like this:
 
 ![](./Images/step1.2_naming_ext_tomlFile.PNG)
-<br><br>
+<br>
 
-> :memo: `extension.toml` is located inside of the `exts` folder you created for your extension. <br> ![](./Images/fileStructTOML.PNG)
+> **Note:** `extension.toml` is located inside of the `exts` folder you created for your extension. <br> ![](./Images/fileStructTOML.PNG)
 
 <br>
 
@@ -65,37 +65,24 @@ Inside of this file, there is a title and description for how the extension will
 
 ![new ui](./Images/step1.2_naming_ext_ui_update.PNG)
 
-<br><br>
+## Step 2: Print the active viewport
 
-# Step 2: Begin Your Code
+In this section, you import a viewport utility into `extension.py`. Then, you use it to store the active viewport. Finally, you display the active viewport to the console. 
 
-> 📝**Note:** You'll be creating new scripts in this section and bouncing between them often. Please note which script the code is written in. 
+### Step 2.1: Navigate to `extension.py`
 
-<br>
+Navigate to `extension.py`: 
 
-To begin coding, navigate to the `extension.py` script in Visual Studio Code. It will look something like this:
+![](./Images/fileStruct.PNG)
+ 
+This module contains boilerplate code for building a new extension:
 
 ![extension.py script](./Images/step2.extension_script.PNG)
 
 
-> :memo: `extension.py` is located inside of the exts folder you created for your extension. <br> ![](./Images/fileStruct.PNG)
+### Step 2.2: Import the Viewport
 
-## Step 2.1: Import the Viewport
-
-### Theory 
-  First you will import from Omniverse Viewport Library into `extension.py`, then you will begin adding to the `MyExtension` class so that the active viewport is selected and the action is properly displayed in the console. 
-
-> :memo: `extension.py` is located inside of the `exts` folder you created for your extension. <br> <p align="center">![](./Images/fileStruct.PNG)</p>
-
-  ### Step 2.1.1: Add import code 
-  At the top of `extension.py` there are two imports there by default: 
-
-```python
-import omni.ext
-import omni.ui as ui
-```
-
-  Import the viewport underneath these, such as:
+Import the viewport:
 
   ```python
 import omni.ext
@@ -103,13 +90,13 @@ import omni.ui as ui
 
 # NEW: Import function to get the active viewport
 from omni.kit.viewport.utility import get_active_viewport_window
-# END NEW
   ```
 
-### Step 2.1.2: Add class 
 Now that you've imported the viewport library, begin adding to the class.
 
-In `on_startup()` set the viewport variable for the active viewport like so:
+### Step 2.3: Get the activate viewport window 
+
+In `on_startup()` set the `viewport_window` variable to the active viewport:
 
 ```python
 
@@ -119,9 +106,8 @@ class MyExtension(omni.ext.IExt):
     def on_startup(self, ext_id):
         print("[company.hello.world] MyExtension startup")
 
-        # NEW: Get the active Viewport (which at startup is the default Viewport)
+        # NEW: Get the active Viewport 
         viewport_window = get_active_viewport_window()
-        # END NEW
 
         self._window = ui.Window("My Window", width=300, height=300)
         with self._window.frame:
@@ -135,22 +121,25 @@ class MyExtension(omni.ext.IExt):
 ...   
 ```
 
-In `on_click()` print the active viewport. Change the `print("Text")` as follows:
+At startup the active window is the default Viewport.
+### Step 2.4: Print the active viewport
+In `on_click()` print the active viewport:
 
 ```python
-                def on_click():
-                    # NEW: Print to see that we did grab the active viewport
-                    print(viewport_window)
-                    # END NEW
+def on_click():
+    print(viewport_window)
 ```
 
-Navigate back to `Omniverse Code` and click the **Click Me** button inside of the *Extension Template Window*, you will see "Viewport" appear at the bottom of the *Console*.
+Here, `on_click()` is acting as a convenience method that ensures you stored the active viewport
+
+### 2.5: Review your changes 
+Navigate to Omniverse Code, click the **Click Me** button inside of *My Window*, and locate "Viewport" in the *Console*.
 
 ![](./Images/viewport%20displayed%20on%20click.PNG "Viewport on Click Me")
 
+Here you see the result of the print statement you added in the last step.
 
-
-> :bulb: If you encounter an error in your console, please refer to the [Viewport Utility tip in Prereqs](#prereqs)
+> **Help:** If you encounter an error in your console, please refer to the [Viewport Utility tip in Prereqs](#prereqs)
 
   <br>
 
@@ -165,7 +154,7 @@ Create a file in the same file location as `extension.py` and name it `object_in
   <br>
 
   ## Step 2.3: Object Model Script Code
-  > 📝**Note:** You are working in the `object_info_model.py` script for this section. 
+  > **Note:** You are working in the `object_info_model.py` script for this section. 
 
 <br>
 
@@ -252,13 +241,13 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
 <br>
 
->📝**Note:** It's important to include `destroy()` in the model script. This will free the memory as well as clear the screen to prevent any accumlation of events. 
+> **Note:** It's important to include `destroy()` in the model script. This will free the memory as well as clear the screen to prevent any accumlation of events. 
 
 <br>
 
 ## Step 2.4: Import to extension.py
 
-> 📝**Note:** You are working in `extension.py` for this section. 
+> **Note:** You are working in `extension.py` for this section. 
 
 
 ### Theory
@@ -392,7 +381,7 @@ class MyExtension(omni.ext.IExt):
 
 At this point, there is nothing viewable in `Omniverse Code` as you have not created a stage for the viewport to reference an event happening. In this section you will set that stage by getting a reference to the selected object's information. By the end of step 3 you should be able to view the object info in the viewport.
 
-> 📝**Note:** We are working in `object_info_model.py` for this section.
+> **Note:** We are working in `object_info_model.py` for this section.
 
 At this point, you have created the start of the Stage Event in `object_info_model.py` but there is nothing happening in the event. Replace what's in `on_stage_event` with the variable for the primitive path and where that path information is located:
 
@@ -807,7 +796,7 @@ class ViewportSceneInfo():
 
 
 ## Step 3.5: Cleaning up extension.py
-> 📝**Note:** You are working in `extension.py` for this section.
+> **Note:** You are working in `extension.py` for this section.
 
 ### Theory
 Now that you've have established a Viewport, we need to clean up `extension.py` to reflect these changes. You will remove some of the references you made previously and ensure that the viewport is flushed out on shutdown.
@@ -964,7 +953,7 @@ You should be able to create a primitive in the viewport and view the Object Inf
 
   ## Step 4.1: Updating Object Info Model
 
-  > 📝**Note:** We are working in `object_info_model.py` for this section.
+  > **Note:** We are working in `object_info_model.py` for this section.
 
   ### Step 4.1.1: Setup imports
   In this step and the following steps, we will be doing a little bit of math. Before we jump into that though, let's import what we need to make this work into `object_info_model.py`. We will be importing primarily what we need from USD and we will place these imports at the top of the file, as so:
@@ -1175,7 +1164,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
 ## Step 4.2: Updating Object Info Manipulator
 
-> 📝**Note:** You are working in `object_info_manipulator.py` for this section.
+> **Note:** You are working in `object_info_manipulator.py` for this section.
 
 ### Theory
 
@@ -1217,7 +1206,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
 In the viewport of `Omniverse Code`, the text does not follow our object despite positioning the label at the top center of the bounding box of the object. The text also remains in the viewport even when the object is no longer selected. In this final step we will be guiding you to cleaning up these issues.
 
-> 📝**Note:** Work in `object_info_model.py` for this section
+> **Note:** Work in `object_info_model.py` for this section
 
 ### 4.3.1: Import tf
 Place one more import into `object_info_model.py` at the top of the file, as so:
