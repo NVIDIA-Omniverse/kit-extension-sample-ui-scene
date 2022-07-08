@@ -1,6 +1,6 @@
 # How to make an extension to display Object Info
 
-  The object info displays the primitives Path and type. By the end of this guide you will have created an extension that displays this info in the viewport for the selected primitive. This guide is suited for more established begineers (beginning engineers) to Omniverse Kit.
+The object info extension displays the selected primitive’s Path and Type. This guide is great for first time extension builders.
 
   > :memo: Visual Studio Code is the preferred IDE, hence forth we will be referring to it throughout this guide. 
 
@@ -16,7 +16,7 @@ In this guide you will learn how to:
   It is recommended that you have completed these tutorials before moving forward.
 
 - [Extension Environment Tutorial](https://github.com/NVIDIA-Omniverse/ExtensionEnvironmentTutorial)
-- [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawnprims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md)
+- [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims)
 
 
 
@@ -924,7 +924,7 @@ class MyExtension(omni.ext.IExt):
         super().__init__()
         self.viewport_scene = None
 
-     def on_startup(self, ext_id):
+    def on_startup(self, ext_id):
         viewport_window = get_active_viewport_window()
 
         self.viewport_scene = ViewportSceneInfo(viewport_window, ext_id)
@@ -1082,7 +1082,6 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
         def __init__(self) -> None:
             super().__init__()
             self.value = [0, 0, 0]
-
 
     def __init__(self) -> None:
         super().__init__()
@@ -1353,7 +1352,6 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
         def __init__(self) -> None:
             super().__init__()
             self.value = [0, 0, 0]
-
 
     def __init__(self) -> None:
         super().__init__()
