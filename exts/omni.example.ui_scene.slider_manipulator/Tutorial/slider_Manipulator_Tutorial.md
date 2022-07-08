@@ -1,19 +1,26 @@
+![](./Images/logo.png)
+
 # How to make a Slider Manipulator
    In this guide you will learn how to draw a 3D slider in the viewport that overlays on the top of the bounding box of the selected primitive. This slider will control the scale of the primitive with a custom manipulator, model, and gesture. When the slider is changed, the manipulator processes the custom gesture that changes the data in the model, which changes the data directly in the USD stage. 
 
    ![](/Images/sliderPreview.png)
 
 # Learning Objectives
- - TODO
+ - Create an extension
+ - Import omni.ui and USD
+ - Set up Model and Manipulator 
+ - Create Gestures
+ - Create a working scale slider
 
  
  # Prereqs
-  - TODO
- - Eric's guide - LINK
- - Spawning primitives guide - LINK
- - Object Info Guide - LINK
- 
+ To help understand the concepts used in this guide, it is recommended that you compelte the following:
 
+- [Extension Environment Tutorial](https://github.com/NVIDIA-Omniverse/ExtensionEnvironmentTutorial)
+- [Spawning Primitives Tutorial](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims)
+- [Display Object Info Tutorial](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/tree/main/exts/omni.example.ui_scene.object_info)
+
+> :exclamation: <span style="color:red"><b> WARNING: Check that Viewport Utility Extension is turned ON in the extension manager: </b></span> <br> ![](./Images/viewportUtilOn.PNG)
 
 # Table of Contents
  - [Step 1: Create the extension](#step-1-create-the-extension)
@@ -100,14 +107,17 @@ description="Interactive example of the slider manipulator with omni.ui.scene"
 
 # Step 2: Model script
 ### Theory:
-In this step we will be creating the `sliderModel.py` script where we will be tracking the current selected primitive, calling the stage event, and getting the position directly from USD.
+In this step we will be creating the `slider_model.py` script where we will be tracking the current selected primitive, calling the stage event, and getting the position directly from USD.
+
+This script will be made up of many lines so be sure to review the <b>":memo:Code Checkpoint"</b> for updated modules of the script at various steps.
 
 ## Step 2.1: Import omni.ui and USD
-After creating `sliderModely.py` in the same folder as `extension.py`, import the omni.ui and the necessary USD, as follows:
+After creating `slider_model.py` in the same folder as `extension.py`, import the omni.ui and the necessary USD, as follows:
 
 ```python
 from omni.ui import scene as sc
 from pxr import Tf
+from pxr import Gf
 from pxr import Usd
 from pxr import UsdGeom
 import omni.usd
@@ -120,6 +130,7 @@ Next, let's set up our Model class and Position Item class. The Model class trac
 ```python
 from omni.ui import scene as sc
 from pxr import Tf
+from pxr import Gf
 from pxr import Usd
 from pxr import UsdGeom
 import omni.usd
@@ -188,11 +199,144 @@ class SliderModel(sc.AbstractManipulatorModel):
         )
         # END NEW
 ```
+
+>:memo: Code Check Point
+
+<details>
+<summary> Click here for the updated SliderModel </summary>
+
+```python
+from omni.ui import scene as sc
+from pxr import Tf
+from pxr import Gf
+from pxr import Usd
+from pxr import UsdGeom
+import omni.usd
+
+
+class SliderModel(sc.AbstractManipulatorModel):
+    """
+    User part. The model tracks the position and scale of the selected
+    object.
+    """
+    class PositionItem(sc.AbstractManipulatorItem):
+        """
+        The Model Item represents the position. It doesn't contain anything
+        because because we take the position directly from USD when requesting.
+        """
+
+        def __init__(self):
+            super().__init__()
+            self.value = [0, 0, 0]
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.position = SliderModel.PositionItem()
+
+        # Current selection
+        self.current_path = ""
+        self.stage_listener = None
+        self.usd_context = omni.usd.get_context()
+        self.stage: Usd.Stage = self.usd_context.get_stage()
+
+        # Track selection
+        self.selection = self.usd_context.get_selection()
+        self.events = self.usd_context.get_stage_event_stream()
+        self.stage_event_delegate = self.events.create_subscription_to_pop(
+            self.on_stage_event, name="Slider Selection Update"
+        )
+```
+
+</details>
+
+<br>
+
 ## Step 2.4: Set the Stage
-With our selection variables set, we now need to call the stage and  Stage Event then grab reference to the path of the primitives:
+With our selection variables set, we now need to call the stage and  Stage Event then grab reference to the path of the primitives. We will start a new function for these below our previous code:
 
 ```python
 ...
+
+    def get_stage(self):
+        if not self.stage:
+            usd_context = omni.usd.get_context()
+            self.stage: Usd.Stage = usd_context.get_stage()
+        return self.stage
+ 
+    def on_stage_event(self, event):
+        """Called by stage_event_stream"""
+        if event.type == int(omni.usd.StageEventType.SELECTION_CHANGED):
+            prim_paths = self.selection.get_selected_prim_paths()
+            if not prim_paths:
+                self._item_changed(self.position)
+                # Revoke the Tf.Notice listener, we don't need to update anything
+                if self.stage_listener:
+                    self.stage_listener.Revoke()
+                    self.stage_listener = None
+                return
+            prim = self.stage.GetPrimAtPath(prim_paths[0])
+            if not prim.IsA(UsdGeom.Imageable):
+                return
+
+            self.current_path = prim_paths[0]
+
+            # Add a Tf.Notice listener to update the position
+            if not self.stage_listener:
+                self.stage_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self._notice_changed, self.stage)
+
+            # Position is changed   
+            self._item_changed(self.position)    
+            
+```
+
+>:memo: Code Check Point
+
+<details>
+<summary> Click here for the updated SliderModel </summary>
+
+```python
+from omni.ui import scene as sc
+from pxr import Tf
+from pxr import Gf
+from pxr import Usd
+from pxr import UsdGeom
+import omni.usd
+
+
+class SliderModel(sc.AbstractManipulatorModel):
+    """
+    User part. The model tracks the position and scale of the selected
+    object.
+    """
+    class PositionItem(sc.AbstractManipulatorItem):
+        """
+        The Model Item represents the position. It doesn't contain anything
+        because because we take the position directly from USD when requesting.
+        """
+
+        def __init__(self):
+            super().__init__()
+            self.value = [0, 0, 0]
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.position = SliderModel.PositionItem()
+
+        # Current selection
+        self.current_path = ""
+        self.stage_listener = None
+        self.usd_context = omni.usd.get_context()
+        self.stage: Usd.Stage = self.usd_context.get_stage()
+
+        # Track selection
+        self.selection = self.usd_context.get_selection()
+        self.events = self.usd_context.get_stage_event_stream()
+        self.stage_event_delegate = self.events.create_subscription_to_pop(
+            self.on_stage_event, name="Slider Selection Update"
+        )
+
     def get_stage(self):
         if not self.stage:
             usd_context = omni.usd.get_context()
@@ -221,12 +365,15 @@ With our selection variables set, we now need to call the stage and  Stage Event
                 self.stage_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self._notice_changed, self.stage)
 
             # Position is changed   
-            self._item_changed(self.position)    
-            
+            self._item_changed(self.position)  
 ```
 
+</details>
+
+<br>
+
 ## Step 2.5: Tf. Notice function
-In the previous step, we created a Tf.Notice to update the position. Now, we will define the function for what happens when Tf.Notice is called:
+In the previous step, we created a Tf.Notice to update the position. [Click here for more information on Tf.Notice.](https://graphics.pixar.com/usd/dev/api/page_tf__notification.html) Now, we will define the function for what happens when Tf.Notice is called. We can add that as follows:
 
 ```python
 ...
@@ -263,11 +410,118 @@ And now, we will set item to request the position and get the value from the ite
             return item.value
         return []
 ```
+
+>:memo: Code Check Point
+
+<details>
+<summary> Click here for the updated SliderModel </summary>
+
+```python
+from omni.ui import scene as sc
+from pxr import Tf
+from pxr import Gf
+from pxr import Usd
+from pxr import UsdGeom
+import omni.usd
+
+
+class SliderModel(sc.AbstractManipulatorModel):
+    """
+    User part. The model tracks the position and scale of the selected
+    object.
+    """
+    class PositionItem(sc.AbstractManipulatorItem):
+        """
+        The Model Item represents the position. It doesn't contain anything
+        because because we take the position directly from USD when requesting.
+        """
+
+        def __init__(self):
+            super().__init__()
+            self.value = [0, 0, 0]
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.position = SliderModel.PositionItem()
+
+        # Current selection
+        self.current_path = ""
+        self.stage_listener = None
+        self.usd_context = omni.usd.get_context()
+        self.stage: Usd.Stage = self.usd_context.get_stage()
+
+        # Track selection
+        self.selection = self.usd_context.get_selection()
+        self.events = self.usd_context.get_stage_event_stream()
+        self.stage_event_delegate = self.events.create_subscription_to_pop(
+            self.on_stage_event, name="Slider Selection Update"
+        )
+
+    def get_stage(self):
+        if not self.stage:
+            usd_context = omni.usd.get_context()
+            self.stage: Usd.Stage = usd_context.get_stage()
+        return self.stage
+ 
+    def on_stage_event(self, event):
+      """Called by stage_event_stream"""
+        if event.type == int(omni.usd.StageEventType.SELECTION_CHANGED):
+            prim_paths = self.selection.get_selected_prim_paths()
+            if not prim_paths:
+                self._item_changed(self.position)
+                # Revoke the Tf.Notice listener, we don't need to update anything
+                if self.stage_listener:
+                    self.stage_listener.Revoke()
+                    self.stage_listener = None
+                return
+            prim = self.stage.GetPrimAtPath(prim_paths[0])
+            if not prim.IsA(UsdGeom.Imageable):
+                return
+
+            self.current_path = prim_paths[0]
+
+            # Add a Tf.Notice listener to update the position
+            if not self.stage_listener:
+                self.stage_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self._notice_changed, self.stage)
+
+            # Position is changed   
+            self._item_changed(self.position)
+
+    def _notice_changed(self, notice, stage):
+        """Called by Tf.Notice"""
+        for p in notice.GetChangedInfoOnlyPaths():
+            if self.current_path in str(p.GetPrimPath()):
+                self._item_changed(self.position) 
+
+    def get_item(self, identifier):
+        if identifier == "position":
+            return self.position       
+
+    def get_as_floats(self, item):
+        if item == self.position:
+            # Requesting position
+            return self.get_position()
+        if item:
+            # Get the value directly from the item
+            return item.value
+        return []
+```
+
+</details>
+
+<br>
+
 ## Step 2.7: Position from USD
 In this last section of the Model script, we will be defining `get_position` to get position directly from USD, like so:
 
 ```python
 ...
+    def get_position(self):
+        """Returns position of currently selected object"""
+        if not self.current_path:
+            return [0, 0, 0]
+
         # Get position directly from USD
         prim = self.stage.GetPrimAtPath(self.current_path)
         box_cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), includedPurposes=[UsdGeom.Tokens.default_])
@@ -283,12 +537,15 @@ In this last section of the Model script, we will be defining `get_position` to 
         return position
 ```
 
+>:memo: Code Check Point
+
 <details>
 <summary> Click here for the full Model script </summary>
 
 ```python
 from omni.ui import scene as sc
 from pxr import Tf
+from pxr import Gf
 from pxr import Usd
 from pxr import UsdGeom
 import omni.usd
@@ -327,7 +584,7 @@ class SliderModel(sc.AbstractManipulatorModel):
         )
 
     def on_stage_event(self, event):
-      """Called by stage_event_stream"""
+        """Called by stage_event_stream"""
         if event.type == int(omni.usd.StageEventType.SELECTION_CHANGED):
             prim_paths = self.selection.get_selected_prim_paths()
             if not prim_paths:
@@ -397,7 +654,8 @@ class SliderModel(sc.AbstractManipulatorModel):
 
 # Step 3: Manipulator Script
 ### Theory:
-In this step, we will be creating `sliderManipulator.py` in the same folder as our Model script. The Manipulator class will define the `on_build` function as well as create the Label and regenerate the model.
+In this step, we will be creating `slide_manipulator.py` in the same folder as our Model script. The Manipulator class will define the `on_build` function as well as create the Label and regenerate the model.
+
 
 ## Step 3.1: Import omni.ui
 After creating the Manipulator script, import omni.ui as follows:
@@ -407,6 +665,7 @@ from omni.ui import scene as sc
 from omni.ui import color as cl
 import omni.ui as ui
 ```
+
 ## Step 3.2: Create Manipulator class
 Now, we will begin the SliderManipulator class and insert the init method:
 
@@ -423,7 +682,7 @@ class SliderManipulator(sc.Manipulator):
 ```
 
 ## Step 3.3: Call on_build and create the Label
-The `on_build` function is called when the model is changed and then will rebuild the slider. We will also create the Label for the slider and position it more towards the top of the screen.
+The `on_build` function is called when the model is changed and it will then rebuild the slider. We will also create the `Label` for the slider and position it more towards the top of the screen.
 
 ```python
 ...
@@ -440,6 +699,7 @@ The `on_build` function is called when the model is changed and then will rebuil
         value = 0.0
         position = self.model.get_as_floats(self.model.get_item("position"))
         
+        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
 
         # Label
         with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
@@ -459,6 +719,7 @@ Finally, let's define `on_model_updated` to regenerate the manipulator:
         # Regenerate the manipulator
         self.invalidate()
 ```
+>:memo: Code Check Point
 
 <details>
 <summary>Click here for the full Manipulator script </summary>
@@ -486,7 +747,8 @@ class SliderManipulator(sc.Manipulator):
         value = 0.0
         position = self.model.get_as_floats(self.model.get_item("position"))
         
-
+        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
+            
         # Label
         with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
             with sc.Transform(scale_to=sc.Space.SCREEN):
@@ -508,15 +770,15 @@ class SliderManipulator(sc.Manipulator):
 
 ### Theory:
 
-In this step, we will create `sliderRegistry.py` in the same location as the Model and Manipulator scripts. We will use the registry script to have the number display on the screen when the primitive is selected.
+In this step, we will create `slider_registry.py` in the same location as the Model and Manipulator modules. We will use the registry script to have the number display on the screen when the primitive is selected..
 
 ## Step 4.1: Import from Model and Manipulator
 
-After creating the registry script, import from the Model and Manipulator, as well as import typing to help make the script more readable, like so:
+After creating the registry script, import from the Model and Manipulator, as well as `import typing` to help make the script more readable, like so:
 
 ```python
-from .SliderModel import SliderModel
-from .sliderManipulator import SliderManipulator
+from .slider_model import SliderModel
+from .slider_manipulator import SliderManipulator
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -524,7 +786,7 @@ from typing import Optional
 
 ## Step 4.2: Disable Selection in Viewport Legacy
 
-We need to disable the selection in the viewport legacy first, so we will set `focused_windows` to do so and import from Omniverse Viewport Library, as so:
+Our first class will address disabling the selection in the viewport legacy but we may encounter a bug that will not set our focused window to `True`. As a result, we will operate all `Viewport` Instances for a given usd_context instead:
 
 ```python
 ...
@@ -557,8 +819,42 @@ class ViewportLegacyDisableSelection:
 
 ```
 
-## Step 4.3: Slider Registry Class
-This class is created by `omni.kit.viewport.registry` or `omni.kit.manipulator.viewport` per viewport and will keep the manipulator and some other properties that are needed in the viewport:
+## Step 4.3: Slider Changed Gesture Class
+
+Under our previously made Viewport class, we will define `SliderChangedGesture` class. In this class we will start with our init method and then define `on_began`, which will disable the selection rect when the user drags the slider:
+
+```python
+
+class SliderChangedGesture(SliderManipulator.SliderChangedGesture):
+    """User part. Called when slider is changed."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def on_began(self):
+        # When the user drags the slider, we don't want to see the selection rect
+        self.__disable_selection = ViewportLegacyDisableSelection()
+```
+
+Next in this class, we will define `on_changed`, which will be called when the user moves the slider. This will update the mesh as the scale of the model is changed. We will also define `on_ended` to re-enable the selection rect when the slider is not being dragged. 
+
+```python
+    def on_changed(self):
+        """Called when the user moved the slider"""
+        if not hasattr(self.gesture_payload, "slider_value"):
+            return
+        # The current slider value is in the payload.
+        slider_value = self.gesture_payload.slider_value
+        # Change the model. Slider watches it and it will update the mesh.
+        self.sender.model.set_floats(self.sender.model.get_item("value"), [slider_value])
+        
+    def on_ended(self):
+        # This re-enables the selection in the Viewport Legacy
+        self.__disable_selection = None
+```
+
+## Step 4.4: Slider Registry Class
+
+This class is created by `omni.kit.viewport.registry` or `omni.kit.manipulator.viewport` per viewport and will keep the manipulator and some other properties that are needed in the viewport. We will set the `SliderRegistry` class after the class we made in the previous step. Included in this class are the init methods for our manipulator and some `Getters` and `Setters:
 
 ```python
 ...
@@ -570,7 +866,7 @@ class SliderRegistry:
     """
 
     def __init__(self, description: Optional[Dict[str, Any]] = None):
-        self.__slider_manipulator = SliderManipulator(model=SliderModel(), gesture=None)
+        self.__slider_manipulator = SliderManipulator(model=SliderModel(), gesture=SliderChangedGesture())
 
     def destroy(self):
         if self.__slider_manipulator:
@@ -594,6 +890,8 @@ class SliderRegistry:
     def name(self):
         return "Example Slider Manipulator"
 ```
+
+>:memo: Code Check Point
 
 <details>
 <summary>Click here for the full Registry script  </summary>
@@ -631,6 +929,19 @@ class ViewportLegacyDisableSelection:
         except Exception:
             pass
 
+    def on_changed(self):
+        """Called when the user moved the slider"""
+        if not hasattr(self.gesture_payload, "slider_value"):
+            return
+        # The current slider value is in the payload.
+        slider_value = self.gesture_payload.slider_value
+        # Change the model. Slider watches it and it will update the mesh.
+        self.sender.model.set_floats(self.sender.model.get_item("value"), [slider_value])
+        
+    def on_ended(self):
+        # This re-enables the selection in the Viewport Legacy
+        self.__disable_selection = None
+
 class SliderRegistry:
     """
     Created by omni.kit.viewport.registry or omni.kit.manipulator.viewport per
@@ -639,7 +950,7 @@ class SliderRegistry:
     """
 
     def __init__(self, description: Optional[Dict[str, Any]] = None):
-        self.__slider_manipulator = SliderManipulator(model=SliderModel(), gesture=None)
+        self.__slider_manipulator = SliderManipulator(model=SliderModel(), gesture=SliderChangedGesture())
 
     def destroy(self):
         if self.__slider_manipulator:
@@ -673,7 +984,7 @@ class SliderRegistry:
 
 ### Theory
 
-We still have the default code in `extension.py` so now we will update the code to reflect the the scripts we made. 
+We still have the default code in `extension.py` so now we will update the code to reflect the the scripts we made. You can locate the `extension.py` script in the `exts` folder hierarchy where we created Model and Manipulator.
 
 ## Step 5.1: Import Omniverse Viewport Library and Registry Script
 
@@ -684,7 +995,7 @@ import omni.ext
 # NEW
 from omni.kit.manipulator.viewport import ManipulatorFactory
 from omni.kit.viewport.registry import RegisterScene
-from .sliderRegistry import SliderRegistry
+from .slider_registry import SliderRegistry
 # END NEW
 ```
 
@@ -721,36 +1032,30 @@ Now, we need to properly shutdown the extension. Let's remove the print statemen
         # END NEW
 
 ```
+>:memo: Code Check Point
+
 <details>
 <summary>Click here for the full extension script</summary>
 
 ```python
 import omni.ext
-# NEW
 from omni.kit.manipulator.viewport import ManipulatorFactory
 from omni.kit.viewport.registry import RegisterScene
-from .sliderRegistry import SliderRegistry
-# END NEW
+from .slider_registry import SliderRegistry
 
-# Any class derived from `omni.ext.IExt` in top level module (defined in `python.modules` of `extension.toml`) will be
-# instantiated when extension gets enabled and `on_startup(ext_id)` will be called. Later when extension gets disabled
-# on_shutdown() is called.
+
 class MyExtension(omni.ext.IExt):
     # ext_id is current extension id. It can be used with extension manager to query additional information, like where
     # this extension is located on filesystem.
     def on_startup(self, ext_id):
-        # NEW
         self.slider_registry = RegisterScene(SliderRegistry, "omni.example.slider")
         self.slider_factory = ManipulatorFactory.create_manipulator(SliderRegistry)
-        # END NEW
 
     def on_shutdown(self):
-        # NEW
         ManipulatorFactory.destroy_manipulator(self.slider_factory)
         self.slider_factory = None
         self.slider_registry.destroy()
         self.slider_registry = None
-        # END NEW
 ```
 
 </details>
@@ -770,7 +1075,7 @@ Now that we have all of the variables and necessary properties referenced, let's
 
 ## Step 6.1: Geometry Properties
 
-We are going to begin by adding new geometry to `sliderManipulator.py`. We will set the geometry properties like so:
+We are going to begin by adding new geometry to `slider_manipulator.py`. We will set the geometry properties in our `init method` like so:
 
 ```python
 from omni.ui import scene as sc
@@ -786,8 +1091,8 @@ class SliderManipulator(sc.Manipulator):
         # Geometry properties
         self.width = 100
         self.thickness = 5
-        self.radius = 5
-        self.radius_hovered = 7
+        self._radius = 5
+        self._radius_hovered = 7
         # END NEW
 ```
 
@@ -810,16 +1115,24 @@ Next, we will create a line above the selected primities. Let's add this to `on_
         position = self.model.get_as_floats(self.model.get_item("position"))
 
         with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
-            
-            # NEW: Creates a line above the prim
+
+          # NEW
             # Left line
             line_from = -self.width * 0.5
-            line_to = -self.width * 0.5 + self.width * 1 - self.radius
+            line_to = -self.width * 0.5 + self.width * 1 - self._radius
             if line_to > line_from:
-                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
+                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)      
             # END NEW
-```
 
+        # Label
+        with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
+            with sc.Transform(scale_to=sc.Space.SCREEN):
+                # Move it 5 points more to the top in the screen space
+                with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
+                    sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
+
+
+```
 
 
 This should be the result in your viewport:
@@ -828,7 +1141,7 @@ This should be the result in your viewport:
 
 ## Step 6.3: Create the circle
 
-We are still working in `sliderManipulator.py` and now we will be adding the circle on the line. This will also be added to `on_build` like so:
+We are still working in `slider_manipulator.py` and now we will be adding the circle on the line for the slider. This will also be added to `on_build` like so:
 
 ```python
 ...
@@ -855,7 +1168,7 @@ We are still working in `sliderManipulator.py` and now we will be adding the cir
             # Circle
             circle_position = -self.width * 0.5 + self.width * 1
             with sc.Transform(transform=sc.Matrix44.get_translation_matrix(circle_position, 0, 0)):
-                radius = self.radius
+                radius = self._radius
                 sc.Arc(radius, axis=2, color=cl.gray)
             # END NEW
 ...
@@ -899,14 +1212,14 @@ class SliderManipulator(sc.Manipulator):
         with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
             # Left line
             line_from = -self.width * 0.5
-            line_to = -self.width * 0.5 + self.width * 1 - self.radius
+            line_to = -self.width * 0.5 + self.width * 1 - self._radius
             if line_to > line_from:
                 sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
 
             # Circle
             circle_position = -self.width * 0.5 + self.width * 1
             with sc.Transform(transform=sc.Matrix44.get_translation_matrix(circle_position, 0, 0)):
-                radius = self.radius
+                radius = self._radius
                 sc.Arc(radius, axis=2, color=cl.gray)
             
             # Label
@@ -933,11 +1246,12 @@ class SliderManipulator(sc.Manipulator):
 
 ## Step 7.1: Import Omniverse Command Library
 
-   First, let's start by importing the Omniverse Command Library to `sliderModel.py`
+   First, let's start by importing the Omniverse Command Library to `slider_model.py`
 
    ```python
 from omni.ui import scene as sc
 from pxr import Tf
+from pxr import Gf
 from pxr import Usd
 from pxr import UsdGeom
 import omni.usd
@@ -981,6 +1295,13 @@ We will use this new class to create the variables for the min and max of the sc
 
 ```python
 ...
+    class ValueItem(sc.AbstractManipulatorItem):
+        """The Model Item contains a single float value"""
+
+        def __init__(self, value=0):
+            super().__init__()
+            self.value = [value]
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -1012,7 +1333,11 @@ With the new variables for the scale, let's define them in `on_stage_event` like
                     self.stage_listener = None
                 return
             prim = self.stage.GetPrimAtPath(prim_paths[0])
-            
+            if not prim.IsA(UsdGeom.Imageable):
+                return
+
+            self.current_path = prim_paths[0]
+
             # NEW
             (old_scale, old_rotation_euler, old_rotation_order, old_translation) = omni.usd.get_local_transform_SRT(prim)
 
@@ -1023,8 +1348,150 @@ With the new variables for the scale, let's define them in `on_stage_event` like
             self.set_floats(self.max, [_max])
             self.set_floats(self.scale, [scale])
             # END NEW
+
+            # Add a Tf.Notice listener to update the position
+            if not self.stage_listener:
+                self.stage_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self._notice_changed, self.stage)
+
+            # Position is changed   
+            self._item_changed(self.position)     
       ...
 ```
+
+>:memo: Code Check Point
+
+<details>
+<summary>Click here for the updated Model script at this point </summary>
+
+```python
+from omni.ui import scene as sc
+from pxr import Tf
+from pxr import Gf
+from pxr import Usd
+from pxr import UsdGeom
+import omni.usd
+import omni.kit.commands
+
+
+class SliderModel(sc.AbstractManipulatorModel):
+    """
+    User part. The model tracks the position and scale of the selected
+    object.
+    """
+    class PositionItem(sc.AbstractManipulatorItem):
+        """
+        The Model Item represents the position. It doesn't contain anything
+        because because we take the position directly from USD when requesting.
+        """
+
+        def __init__(self):
+            super().__init__()
+            self.value = [0, 0, 0]
+
+    class ValueItem(sc.AbstractManipulatorItem):
+        """The Model Item contains a single float value"""
+
+        def __init__(self, value=0):
+            super().__init__()
+            self.value = [value]
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.scale = SliderModel.ValueItem()
+        self.min = SliderModel.ValueItem()
+        self.max = SliderModel.ValueItem(1)
+
+        self.position = SliderModel.PositionItem()
+
+        # Current selection
+        self.current_path = ""
+        self.stage_listener = None
+        self.usd_context = omni.usd.get_context()
+        self.stage: Usd.Stage = self.usd_context.get_stage()
+
+        # Track selection
+        self.selection = self.usd_context.get_selection()
+        self.events = self.usd_context.get_stage_event_stream()
+        self.stage_event_delegate = self.events.create_subscription_to_pop(
+            self.on_stage_event, name="Slider Selection Update"
+        )
+
+    def on_stage_event(self, event):
+        """Called by stage_event_stream"""
+        if event.type == int(omni.usd.StageEventType.SELECTION_CHANGED):
+            prim_paths = self.selection.get_selected_prim_paths()
+            if not prim_paths:
+                self._item_changed(self.position)
+                # Revoke the Tf.Notice listener, we don't need to update anything
+                if self.stage_listener:
+                    self.stage_listener.Revoke()
+                    self.stage_listener = None
+                return
+            prim = self.stage.GetPrimAtPath(prim_paths[0])
+            if not prim.IsA(UsdGeom.Imageable):
+                return
+
+            self.current_path = prim_paths[0]
+
+            (old_scale, old_rotation_euler, old_rotation_order, old_translation) = omni.usd.get_local_transform_SRT(prim)
+
+            scale = old_scale[0]
+            _min = scale * 0.1
+            _max = scale * 2.0
+            self.set_floats(self.min, [_min])
+            self.set_floats(self.max, [_max])
+            self.set_floats(self.scale, [scale])
+
+            # Add a Tf.Notice listener to update the position
+            if not self.stage_listener:
+                self.stage_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self._notice_changed, self.stage)
+
+            # Position is changed   
+            self._item_changed(self.position)      
+            
+    def _notice_changed(self, notice, stage):
+        """Called by Tf.Notice"""
+        for p in notice.GetChangedInfoOnlyPaths():
+            if self.current_path in str(p.GetPrimPath()):
+                self._item_changed(self.position)    
+
+    def get_item(self, identifier):
+        if identifier == "position":
+            return self.position
+
+    def get_as_floats(self, item):
+        if item == self.position:
+            # Requesting position
+            return self.get_position()
+        if item:
+            # Get the value directly from the item
+            return item.value
+        return []
+
+    def get_position(self):
+        """Returns position of currently selected object"""
+        if not self.current_path:
+            return [0, 0, 0]
+
+        # Get position directly from USD
+        prim = self.stage.GetPrimAtPath(self.current_path)
+        box_cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), includedPurposes=[UsdGeom.Tokens.default_])
+        bound = box_cache.ComputeWorldBound(prim)
+        range = bound.ComputeAlignedBox()
+        bboxMin = range.GetMin()
+        bboxMax = range.GetMax()
+
+        x_Pos = (bboxMin[0] + bboxMax[0]) * 0.5
+        y_Pos = (bboxMax[1] + 10)
+        z_Pos = (bboxMin[2] + bboxMax[2]) * 0.5
+        position = [x_Pos, y_Pos, z_Pos]
+        return position
+```
+
+</details>
+
+<br>
 
 ## Step 7.4: Define Identifiers
 
@@ -1048,7 +1515,7 @@ Just as we defined the identifier for position, we must do the same for value, m
 
 ## Step 7.5: Set Floats
 
-Previously, we made a call to `set_floats`, now let's create this pass. In this function, we will set the scale when setting the value, set directly to the item, and update the manipulator:
+Previously, we made a call to `set_floats`, now let's create this pass after the `get_item` function. In this function, we will set the scale when setting the value, set directly to the item, and update the manipulator:
 
 ```python
     def set_floats(self, item, value):
@@ -1084,12 +1551,12 @@ Previously, we made a call to `set_floats`, now let's create this pass. In this 
 ```python
 from omni.ui import scene as sc
 from pxr import Tf
+from pxr import Gf
 from pxr import Usd
 from pxr import UsdGeom
 import omni.usd
-# NEW IMPORT
 import omni.kit.commands
-# END NEW 
+
 
 class SliderModel(sc.AbstractManipulatorModel):
     """
@@ -1106,23 +1573,22 @@ class SliderModel(sc.AbstractManipulatorModel):
             super().__init__()
             self.value = [0, 0, 0]
 
-    # NEW MANIPULATOR ITEM
+
     class ValueItem(sc.AbstractManipulatorItem):
         """The Model Item contains a single float value"""
 
         def __init__(self, value=0):
             super().__init__()
             self.value = [value]
-    # END NEW 
+
 
     def __init__(self) -> None:
         super().__init__()
 
-        # NEW
+
         self.scale = SliderModel.ValueItem()
         self.min = SliderModel.ValueItem()
         self.max = SliderModel.ValueItem(1)
-        # END NEW
 
         self.position = SliderModel.PositionItem()
 
@@ -1151,8 +1617,11 @@ class SliderModel(sc.AbstractManipulatorModel):
                     self.stage_listener = None
                 return
             prim = self.stage.GetPrimAtPath(prim_paths[0])
-            
-            # NEW
+            if not prim.IsA(UsdGeom.Imageable):
+                return
+
+            self.current_path = prim_paths[0]
+
             (old_scale, old_rotation_euler, old_rotation_order, old_translation) = omni.usd.get_local_transform_SRT(prim)
 
             scale = old_scale[0]
@@ -1161,18 +1630,13 @@ class SliderModel(sc.AbstractManipulatorModel):
             self.set_floats(self.min, [_min])
             self.set_floats(self.max, [_max])
             self.set_floats(self.scale, [scale])
-            # END NEW
-            
-            if not prim.IsA(UsdGeom.Imageable):
-                return
 
-            self.current_path = prim_paths[0]
             # Add a Tf.Notice listener to update the position
             if not self.stage_listener:
                 self.stage_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self._notice_changed, self.stage)
 
             # Position is changed   
-            self._item_changed(self.position)      
+            self._item_changed(self.position)         
 
     def _notice_changed(self, notice, stage):
         """Called by Tf.Notice"""
@@ -1183,25 +1647,13 @@ class SliderModel(sc.AbstractManipulatorModel):
     def get_item(self, identifier):
         if identifier == "position":
             return self.position
-        # NEW 
         if identifier == "value":
             return self.scale
         if identifier == "min":
             return self.min
         if identifier == "max":
             return self.max
-        # END NEW 
 
-    def get_as_floats(self, item):
-        if item == self.position:
-            # Requesting position
-            return self.get_position()
-        if item:
-            # Get the value directly from the item
-            return item.value
-        return []
-
-    # NEW
     def set_floats(self, item, value):
         if not self.current_path:
             return
@@ -1228,7 +1680,14 @@ class SliderModel(sc.AbstractManipulatorModel):
         # This makes the manipulator updated
         self._item_changed(item)
 
-      # END NEW
+    def get_as_floats(self, item):
+        if item == self.position:
+            # Requesting position
+            return self.get_position()
+        if item:
+            # Get the value directly from the item
+            return item.value
+        return []
 
     def get_position(self):
         """Returns position of currently selected object"""
@@ -1259,7 +1718,7 @@ class SliderModel(sc.AbstractManipulatorModel):
 
 ### Theory
 
-For our final step, we will be updating `sliderManipulator.py` to add the gestures needed to connect what we programmed in the Model. This will includechecking that the gesture is not prevented during drag, calling the gesture, restructure the geometry properties, and update the Line and Circle.
+For our final step, we will be updating `slider_manipulator.py` to add the gestures needed to connect what we programmed in the Model. This will include checking that the gesture is not prevented during drag, calling the gesture, restructure the geometry properties, and update the Line and Circle.
 
 ## Step 8.1: SliderDragGesturePayload Class
 
@@ -1287,7 +1746,7 @@ class SliderManipulator(sc.Manipulator):
 
 ## Step 8.2 SliderChangedGesture Class
 
-Next, we will create another new class that the user will reimplement to process the manipulator's callbacks:
+Next, we will create another new class that the user will reimplement to process the manipulator's callbacks, in addition to a new init method:
 
 ```python
 ...
@@ -1313,13 +1772,80 @@ class SliderManipulator(sc.Manipulator):
 
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
+# END NEW
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.width = 100
+        self.thickness = 5
+        self._radius = 5
+        self._radius_hovered = 7
+...
 ```
 
-Inside of the `SliderChangedGesture` class, let's define a process function for our methods:
+Nested inside of the `SliderChangedGesture` class, let's define a process function and place it directly after the init method of this class:
 
 ```python
 ...
+    class SliderChangedGesture(sc.ManipulatorGesture):
+        """
+        Public Gesture. The user will reimplement it to process the
+        manipulator's callbacks.
+        """
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+
+            # NEW
+        def process(self):
+            # Redirection to methods
+            if self.state == sc.GestureState.BEGAN:
+                self.on_began()
+            elif self.state == sc.GestureState.CHANGED:
+                self.on_changed()
+            elif self.state == sc.GestureState.ENDED:
+                self.on_ended()
+                # END NEW
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.width = 100
+        self.thickness = 5
+        self._radius = 5
+        self._radius_hovered = 7
+
+```
+>:memo:Code Check Point
+<details>
+<summary>Click here for the updated Manipulator script at this point </summary>
+
+```python
+from omni.ui import scene as sc
+from omni.ui import color as cl
+import omni.ui as ui
+
+
+class SliderManipulator(sc.Manipulator):
+
+    class SliderDragGesturePayload(sc.AbstractGesture.GesturePayload):
+        """
+        Public payload. The user will access it to get the current value of
+        the slider.
+        """
+
+        def __init__(self, base):
+            super().__init__(base.item_closest_point, base.ray_closest_point, base.ray_distance)
+            self.slider_value = 0
+
+    class SliderChangedGesture(sc.ManipulatorGesture):
+        """
+        Public Gesture. The user will reimplement it to process the
+        manipulator's callbacks.
+        """
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            
         def process(self):
             # Redirection to methods
             if self.state == sc.GestureState.BEGAN:
@@ -1329,9 +1855,86 @@ Inside of the `SliderChangedGesture` class, let's define a process function for 
             elif self.state == sc.GestureState.ENDED:
                 self.on_ended()
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.width = 100
+        self.thickness = 5
+        self._radius = 5
+        self._radius_hovered = 7
+
+    def on_build(self):
+        """Called when the model is chenged and rebuilds the whole slider"""
+        if not self.model:
+            return
+
+        # If we don't have a selection then just return
+        if self.model.get_item("name") == "":
+            return
+
+        value = 0.0
+        position = self.model.get_as_floats(self.model.get_item("position"))
+
+        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
+
+            # Left line
+            line_from = -self.width * 0.5
+            line_to = -self.width * 0.5 + self.width * 1 - self._radius
+            if line_to > line_from:
+                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
+
+            # Circle
+            circle_position = -self.width * 0.5 + self.width * 1
+            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(circle_position, 0, 0)):
+                radius = self._radius
+                sc.Arc(radius, axis=2, color=cl.gray)
+
+        # Label
+        with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
+            with sc.Transform(scale_to=sc.Space.SCREEN):
+                # Move it 5 points more to the top in the screen space
+                with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
+                    sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
+
+    def on_model_updated(self, item):
+        # Regenerate the manipulator
+        self.invalidate()     
 ```
 
-Now, we need to pass through a few of the Public API functions:
+</details>
+
+<br>
+
+Now, we need to pass through a few of the Public API functions after the `process` function:
+
+```python
+        def process(self):
+            # Redirection to methods
+            if self.state == sc.GestureState.BEGAN:
+                self.on_began()
+            elif self.state == sc.GestureState.CHANGED:
+                self.on_changed()
+            elif self.state == sc.GestureState.ENDED:
+                self.on_ended()
+
+    # NEW
+        # Public API:
+        def on_began(self):
+            pass
+
+        def on_changed(self):
+            pass
+
+        def on_ended(self):
+            pass
+    # END NEW
+
+
+```
+
+## Step 8.3 _ArcGesturePriorities Class
+
+We will be adding an `_ArcGesture` class in the next step that needs the manager `_ArcGesturePrioritize` to make it the priority gesture. We will add the manager first to make sure the drag of the slider is not prevented during drag. We will slot this new class after our Public API functions:
+
 
 ```python
         # Public API:
@@ -1343,13 +1946,8 @@ Now, we need to pass through a few of the Public API functions:
 
         def on_ended(self):
             pass
-```
 
-## Step 8.3 _ArcGesturePriorities Class
-
-We will be adding an `_ArcGesture` class in the next step that needs the manager `_ArcGesturePriorities` to make it the priority gesture, this will also make sure that the gesture is not prevented in the middle of drag:
-
-```python
+# NEW
     class _ArcGesturePrioritize(sc.GestureManager):
         """
         Manager makes _ArcGesture the priority gesture
@@ -1363,13 +1961,30 @@ We will be adding an `_ArcGesture` class in the next step that needs the manager
             if isinstance(preventer, SliderManipulator._ArcGesture):
                 if preventer.state == sc.GestureState.BEGAN or preventer.state == sc.GestureState.CHANGED:
                     return True
+# END NEW
 ```
 
 ## Step 8.4: _ArcGesture Class
 
-Now, let's create the class `_ArcGesture` where we will set the new slider value and redirect to `SliderChangedGesture`.
+Now, let's create the class `_ArcGesture` where we will set the new slider value and redirect to `SliderChangedGesture` class we made previously. This new class will be after the `ArcGesturePrioritize` manager class. 
 
 ```python
+
+    class _ArcGesturePrioritize(sc.GestureManager):
+        """
+        Manager makes _ArcGesture the priority gesture
+        """
+
+        def can_be_prevented(self, gesture):
+            # Never prevent in the middle of drag
+            return gesture.state != sc.GestureState.CHANGED
+
+        def should_prevent(self, gesture, preventer):
+            if isinstance(preventer, SliderManipulator._ArcGesture):
+                if preventer.state == sc.GestureState.BEGAN or preventer.state == sc.GestureState.CHANGED:
+                    return True
+
+# NEW
     class _ArcGesture(sc.DragGesture):
         """
         Internal gesture that sets the new slider value and redirects to
@@ -1402,150 +2017,11 @@ Now, let's create the class `_ArcGesture` where we will set the new slider value
                 )
             # Base process of the gesture
             super().process()
+# END NEW
 ```
-
-## Step 8.5: Restructure Geometry Parameters
-
-For this step, we will be restructuring the Geometry properties:
-
-```python
-        # Geometry properties
-        self._width = 100
-        self._thickness = 5
-        self._radius = 5
-        self._radius_hovered = 7
-
-        def set_radius(circle, radius):
-            circle.radius = radius
-
-        # We don't recreate the gesture to make sure it's active when the
-        # underlying object is recreated
-        self._arc_gesture = self._ArcGesture(self)
-```
-
-## Step 8.6: Add Hover Gestures
-
-If you noticed in our new geometry properties, we referenced a hover gesture. Let's create this gesture now:
-
-```python
-        # Compatibility with old versions of ui.scene
-        if hasattr(sc, "HoverGesture"):
-            self._hover_gesture = sc.HoverGesture(
-                on_began_fn=lambda sender: set_radius(sender, self._radius_hovered),
-                on_ended_fn=lambda sender: set_radius(sender, self._radius),
-            )
-        else:
-            self._hover_gesture = None
-```
-
-## Step 8.7: UI Getters and Setters
-
-We need to add a few Python decoraters for the UI, such as @property and @width-setter and @height-setter:
-
-```python
-    def destroy(self):
-        pass
-
-    @property
-    def width(self):
-        return self._width
-
-    @width.setter
-    def width(self, value):
-        self._width = value
-        # Regenerate the mesh
-        self.invalidate()
-
-    @property
-    def thickness(self):
-        return self._thickness
-
-    @thickness.setter
-    def thickness(self, value):
-        self._thickness = value
-        # Regenerate the mesh
-        self.invalidate()
-```
-
-## Step 8.8: Update on_build
-
-For our final step, we will update the `on_build` function to updatethe min and max values of the model, update the line and circle,  and update the label.
-
-Let's start with updating the min and max values like so: 
-
-```python
-    def on_build(self):
-        """Called when the model is chenged and rebuilds the whole slider"""
-        if not self.model:
-            return
-
-        # If we don't have a selection then just return
-        if self.model.get_item("name") == "":
-            return
-
-        # NEW
-        _min = self.model.get_as_floats(self.model.get_item("min"))[0]
-        _max = self.model.get_as_floats(self.model.get_item("max"))[0]
-        value = float(self.model.get_as_floats(self.model.get_item("value"))[0])
-        value_normalized = (value - _min) / (_max - _min)
-        value_normalized = max(min(value_normalized, 1.0), 0.0)
-        # END NEW
-```
-
-Now, we will add a new line so that we have a Left and Right line:
-
-```python
-        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
-            # Left line
-            line_from = -self.width * 0.5
-            line_to = -self.width * 0.5 + self.width * value_normalized - self._radius # REPLACED THE 1 WITH value_normalized
-            if line_to > line_from:
-                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
-
-            # NEW: Basically the same as left line but flipped
-            # Right line
-            line_from = -self.width * 0.5 + self.width * value_normalized + self._radius
-            line_to = self.width * 0.5
-            if line_to > line_from:
-                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
-            # END NEW
-```
-
-To update the circle, we will add a gesture so when hovered, the circle will increase in size:
-
-```python
-            # Circle
-            circle_position = -self.width * 0.5 + self.width * value_normalized
-            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(circle_position, 0, 0)):
-                radius = self._radius
-                # NEW: Added Gesture when hovering over the circle it will increase in size
-                gestures = [self._arc_gesture]
-                if self._hover_gesture:
-                    gestures.append(self._hover_gesture)
-
-                    if self._hover_gesture.state == sc.GestureState.CHANGED:
-                        radius = self._radius_hovered
-                # END NEW
-                sc.Arc(radius, axis=2, color=cl.gray, gestures=gestures)
-```
-
-Last of all, let's update the label to add more space between the slider and the label:
-
-```python
-                # Label
-                with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
-                    # NEW: Added more space between the slider and the label
-                    # Move it to the top
-                    with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, self._radius_hovered, 0)):
-                    # END NEW
-                        with sc.Transform(scale_to=sc.Space.SCREEN):
-                            # Move it 5 points more to the top in the screen space
-                            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
-                                sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
-```
-
+>:memo:Code Check Point
 <details>
-<summary>Click here for the full Manipulator script</summary>
+<summary>Click here for the updated Manipulator script at this point </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -1554,8 +2030,7 @@ import omni.ui as ui
 
 
 class SliderManipulator(sc.Manipulator):
-  
-    # NEW
+
     class SliderDragGesturePayload(sc.AbstractGesture.GesturePayload):
         """
         Public payload. The user will access it to get the current value of
@@ -1640,14 +2115,67 @@ class SliderManipulator(sc.Manipulator):
                 )
             # Base process of the gesture
             super().process()
-    
-    # END NEW
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.width = 100
+        self.thickness = 5
+        self._radius = 5
+        self._radius_hovered = 7
 
-        # NEW restructured parameters and added hover gestures
-        
+    def on_build(self):
+        """Called when the model is chenged and rebuilds the whole slider"""
+        if not self.model:
+            return
+
+        # If we don't have a selection then just return
+        if self.model.get_item("name") == "":
+            return
+
+        value = 0.0
+        position = self.model.get_as_floats(self.model.get_item("position"))
+
+        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
+
+            # Left line
+            line_from = -self.width * 0.5
+            line_to = -self.width * 0.5 + self.width * 1 - self._radius
+            if line_to > line_from:
+                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
+
+            # Circle
+            circle_position = -self.width * 0.5 + self.width * 1
+            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(circle_position, 0, 0)):
+                radius = self._radius
+                sc.Arc(radius, axis=2, color=cl.gray)
+
+        # Label
+        with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
+            with sc.Transform(scale_to=sc.Space.SCREEN):
+                # Move it 5 points more to the top in the screen space
+                with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
+                    sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
+
+    def on_model_updated(self, item):
+        # Regenerate the manipulator
+        self.invalidate()     
+```
+
+</details>
+
+<br>
+
+## Step 8.5: Restructure Geometry Parameters
+
+For this step, we will be adding to init method that nests our Geometry properties, such as `width`,`thickness`,`radius`, and `radius_hovered`. 
+
+>:bulb: Tip: If you are having trouble locating the geometry properties, be reminded that this init method is after the new classes we added in the previous steps. You should find it under "ArcGesture"
+
+Let's start by defining `set_radius` for the circle so that we can change it on hover later, and also set the parameters for arc_gesture to make sure it's active when the object is recreated:
+
+```python
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         # Geometry properties
         self._width = 100
         self._thickness = 5
@@ -1660,8 +2188,18 @@ class SliderManipulator(sc.Manipulator):
         # We don't recreate the gesture to make sure it's active when the
         # underlying object is recreated
         self._arc_gesture = self._ArcGesture(self)
+```
 
-        # Compatibility with old versions of ui.scene
+## Step 8.6: Add Hover Gestures
+
+Now that we have set the geometry properties for when we hover over them, let's create the `HoverGesture`. We will set this as an `if` statement under the parameters for `arc_gesture`:
+
+```python
+        # We don't recreate the gesture to make sure it's active when the
+        # underlying object is recreated
+        self._arc_gesture = self._ArcGesture(self)
+
+     # NEW
         if hasattr(sc, "HoverGesture"):
             self._hover_gesture = sc.HoverGesture(
                 on_began_fn=lambda sender: set_radius(sender, self._radius_hovered),
@@ -1669,9 +2207,14 @@ class SliderManipulator(sc.Manipulator):
             )
         else:
             self._hover_gesture = None
-          # END NEW
+    # END NEW
+```
 
-    # NEW
+## Step 8.7: UI Getters and Setters
+
+Before moving on, we need to add a few Python decoraters for the UI, such as `@property`,`@width-setter` and `@height-setter`. These can be added after the `HoverGesture` statement from the step above:
+
+```python
     def destroy(self):
         pass
 
@@ -1694,7 +2237,150 @@ class SliderManipulator(sc.Manipulator):
         self._thickness = value
         # Regenerate the mesh
         self.invalidate()
-    # END NEW
+```
+
+>:memo: Code Check Point
+
+<details>
+<summary>Click here for the updated Manipulator script at this point</summary>
+
+```python
+from omni.ui import scene as sc
+from omni.ui import color as cl
+import omni.ui as ui
+
+
+class SliderManipulator(sc.Manipulator):
+
+    class SliderDragGesturePayload(sc.AbstractGesture.GesturePayload):
+        """
+        Public payload. The user will access it to get the current value of
+        the slider.
+        """
+
+        def __init__(self, base):
+            super().__init__(base.item_closest_point, base.ray_closest_point, base.ray_distance)
+            self.slider_value = 0
+
+    class SliderChangedGesture(sc.ManipulatorGesture):
+        """
+        Public Gesture. The user will reimplement it to process the
+        manipulator's callbacks.
+        """
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+
+        def process(self):
+            # Redirection to methods
+            if self.state == sc.GestureState.BEGAN:
+                self.on_began()
+            elif self.state == sc.GestureState.CHANGED:
+                self.on_changed()
+            elif self.state == sc.GestureState.ENDED:
+                self.on_ended()
+
+        # Public API:
+        def on_began(self):
+            pass
+
+        def on_changed(self):
+            pass
+
+        def on_ended(self):
+            pass
+
+    class _ArcGesturePrioritize(sc.GestureManager):
+        """
+        Manager makes _ArcGesture the priority gesture
+        """
+
+        def can_be_prevented(self, gesture):
+            # Never prevent in the middle of drag
+            return gesture.state != sc.GestureState.CHANGED
+
+        def should_prevent(self, gesture, preventer):
+            if isinstance(preventer, SliderManipulator._ArcGesture):
+                if preventer.state == sc.GestureState.BEGAN or preventer.state == sc.GestureState.CHANGED:
+                    return True
+
+    class _ArcGesture(sc.DragGesture):
+        """
+        Internal gesture that sets the new slider value and redirects to
+        public SliderChangedGesture.
+        """
+
+        def __init__(self, manipulator):
+            super().__init__(manager=SliderManipulator._ArcGesturePrioritize())
+            self._manipulator = manipulator
+
+        def __repr__(self):
+            return f"<_ArcGesture at {hex(id(self))}>"
+
+        def process(self):
+            if self.state in [sc.GestureState.BEGAN, sc.GestureState.CHANGED, sc.GestureState.ENDED]:
+                # Form new gesture_payload object
+                new_gesture_payload = SliderManipulator.SliderDragGesturePayload(self.gesture_payload)
+                # Save the new slider position in the gesture_payload object
+                object_ray_point = self._manipulator.transform_space(
+                    sc.Space.WORLD, sc.Space.OBJECT, self.gesture_payload.ray_closest_point
+                )
+                center = self._manipulator.model.get_as_floats(self._manipulator.model.get_item("position"))
+                slider_value = (object_ray_point[0] - center[0]) / self._manipulator.width + 0.5
+                _min = self._manipulator.model.get_as_floats(self._manipulator.model.get_item("min"))[0]
+                _max = self._manipulator.model.get_as_floats(self._manipulator.model.get_item("max"))[0]
+                new_gesture_payload.slider_value = _min + slider_value * (_max - _min)
+                # Call the public gesture
+                self._manipulator._process_gesture(
+                    SliderManipulator.SliderChangedGesture, self.state, new_gesture_payload
+                )
+            # Base process of the gesture
+            super().process()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.width = 100
+        self.thickness = 5
+        self._radius = 5
+        self._radius_hovered = 7
+
+        def set_radius(circle, radius):
+            circle.radius = radius
+
+        # We don't recreate the gesture to make sure it's active when the
+        # underlying object is recreated
+        self._arc_gesture = self._ArcGesture(self)
+
+        if hasattr(sc, "HoverGesture"):
+            self._hover_gesture = sc.HoverGesture(
+                on_began_fn=lambda sender: set_radius(sender, self._radius_hovered),
+                on_ended_fn=lambda sender: set_radius(sender, self._radius),
+            )
+        else:
+            self._hover_gesture = None
+
+    def destroy(self):
+        pass
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        self._width = value
+        # Regenerate the mesh
+        self.invalidate()
+
+    @property
+    def thickness(self):
+        return self._thickness
+
+    @thickness.setter
+    def thickness(self, value):
+        self._thickness = value
+        # Regenerate the mesh
+        self.invalidate()
 
     def on_build(self):
         """Called when the model is chenged and rebuilds the whole slider"""
@@ -1705,16 +2391,77 @@ class SliderManipulator(sc.Manipulator):
         if self.model.get_item("name") == "":
             return
 
-        # NEW
+        value = 0.0
+        position = self.model.get_as_floats(self.model.get_item("position"))
+
+        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
+
+            # Left line
+            line_from = -self.width * 0.5
+            line_to = -self.width * 0.5 + self.width * 1 - self._radius
+            if line_to > line_from:
+                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
+
+            # Circle
+            circle_position = -self.width * 0.5 + self.width * 1
+            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(circle_position, 0, 0)):
+                radius = self._radius
+                sc.Arc(radius, axis=2, color=cl.gray)
+
+        # Label
+        with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
+            with sc.Transform(scale_to=sc.Space.SCREEN):
+                # Move it 5 points more to the top in the screen space
+                with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
+                    sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
+
+    def on_model_updated(self, item):
+        # Regenerate the manipulator
+        self.invalidate()     
+```
+
+</details>
+
+<br>
+
+## Step 8.8: Update on_build
+
+For our final step in the Manipulator module, we will update the `on_build` function to update the min and max values of the model, update the line and circle, and update the label.
+
+Let's start with replacing the `value` variable we had before with a new set of parameters for `min`,`max`, new `value`, and `value_normalized`.
+
+```python
+    def on_build(self):
+        """Called when the model is chenged and rebuilds the whole slider"""
+        if not self.model:
+            return
+
+        # If we don't have a selection then just return
+        if self.model.get_item("name") == "":
+            return
+
+     ### REPLACE ####
+        value = 0.0
+
+    ### WITH ####
         _min = self.model.get_as_floats(self.model.get_item("min"))[0]
         _max = self.model.get_as_floats(self.model.get_item("max"))[0]
         value = float(self.model.get_as_floats(self.model.get_item("value"))[0])
         value_normalized = (value - _min) / (_max - _min)
         value_normalized = max(min(value_normalized, 1.0), 0.0)
-        # END NEW
+    # END NEW
 
         position = self.model.get_as_floats(self.model.get_item("position"))
 
+```
+
+Now, we will add a new line to the slider so that we have a line for when the slider is moved to the left and to the right. Locate just below our previously set parameters the `Left Line` we created in `Step 6.2`. 
+
+Before we add the new line, replace the `1` in `line_to` with our new parameter `value_normalized`.
+
+Then add the `Right Line` below the `Left Line`, as so:
+
+```python
         with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
             # Left line
             line_from = -self.width * 0.5
@@ -1722,15 +2469,20 @@ class SliderManipulator(sc.Manipulator):
             if line_to > line_from:
                 sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
 
-            # NEW: Basically the same as left line but flipped
+            # NEW: same as left line but flipped
             # Right line
             line_from = -self.width * 0.5 + self.width * value_normalized + self._radius
             line_to = self.width * 0.5
             if line_to > line_from:
                 sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
             # END NEW
+```
 
+Next, let's update the circle to add the `hover_gesture`. This will increase the circle in size when hovered over. Let's also change the `1` value like we did for `Line` to `value_normalized` and also add the gesture to `sc.Arc`:
+
+```python
             # Circle
+            # NEW : Changed 1 value to value_normalized
             circle_position = -self.width * 0.5 + self.width * value_normalized
             with sc.Transform(transform=sc.Matrix44.get_translation_matrix(circle_position, 0, 0)):
                 radius = self._radius
@@ -1741,27 +2493,231 @@ class SliderManipulator(sc.Manipulator):
 
                     if self._hover_gesture.state == sc.GestureState.CHANGED:
                         radius = self._radius_hovered
-                # END NEW
+               
                 sc.Arc(radius, axis=2, color=cl.gray, gestures=gestures)
+                 # END NEW
+```
+
+Last of all, let's update the `Label` below our circle to add more space between the slider and the label:
+
+```python
+        with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
+            # NEW: Added more space between the slider and the label
+            # Move it to the top
+            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, self._radius_hovered, 0)):
+            # END NEW
+                with sc.Transform(scale_to=sc.Space.SCREEN):
+                # Move it 5 points more to the top in the screen space
+                    with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
+                        sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
+```
+
+>:memo: Code Check Point
+
+<details>
+<summary>Click here for the full Manipulator script</summary>
+
+```python
+from omni.ui import scene as sc
+from omni.ui import color as cl
+import omni.ui as ui
 
 
-                # Label
-                with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
-                    # NEW: Added more space between the slider and the label
-                    # Move it to the top
-                    with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, self._radius_hovered, 0)):
-                    # END NEW
-                        with sc.Transform(scale_to=sc.Space.SCREEN):
-                            # Move it 5 points more to the top in the screen space
-                            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
-                                sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
+class SliderManipulator(sc.Manipulator):
+
+    class SliderDragGesturePayload(sc.AbstractGesture.GesturePayload):
+        """
+        Public payload. The user will access it to get the current value of
+        the slider.
+        """
+
+        def __init__(self, base):
+            super().__init__(base.item_closest_point, base.ray_closest_point, base.ray_distance)
+            self.slider_value = 0
+
+    class SliderChangedGesture(sc.ManipulatorGesture):
+        """
+        Public Gesture. The user will reimplement it to process the
+        manipulator's callbacks.
+        """
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+
+        def process(self):
+            # Redirection to methods
+            if self.state == sc.GestureState.BEGAN:
+                self.on_began()
+            elif self.state == sc.GestureState.CHANGED:
+                self.on_changed()
+            elif self.state == sc.GestureState.ENDED:
+                self.on_ended()
+
+        # Public API:
+        def on_began(self):
+            pass
+
+        def on_changed(self):
+            pass
+
+        def on_ended(self):
+            pass
+
+    class _ArcGesturePrioritize(sc.GestureManager):
+        """
+        Manager makes _ArcGesture the priority gesture
+        """
+
+        def can_be_prevented(self, gesture):
+            # Never prevent in the middle of drag
+            return gesture.state != sc.GestureState.CHANGED
+
+        def should_prevent(self, gesture, preventer):
+            if isinstance(preventer, SliderManipulator._ArcGesture):
+                if preventer.state == sc.GestureState.BEGAN or preventer.state == sc.GestureState.CHANGED:
+                    return True
+
+    class _ArcGesture(sc.DragGesture):
+        """
+        Internal gesture that sets the new slider value and redirects to
+        public SliderChangedGesture.
+        """
+
+        def __init__(self, manipulator):
+            super().__init__(manager=SliderManipulator._ArcGesturePrioritize())
+            self._manipulator = manipulator
+
+        def __repr__(self):
+            return f"<_ArcGesture at {hex(id(self))}>"
+
+        def process(self):
+            if self.state in [sc.GestureState.BEGAN, sc.GestureState.CHANGED, sc.GestureState.ENDED]:
+                # Form new gesture_payload object
+                new_gesture_payload = SliderManipulator.SliderDragGesturePayload(self.gesture_payload)
+                # Save the new slider position in the gesture_payload object
+                object_ray_point = self._manipulator.transform_space(
+                    sc.Space.WORLD, sc.Space.OBJECT, self.gesture_payload.ray_closest_point
+                )
+                center = self._manipulator.model.get_as_floats(self._manipulator.model.get_item("position"))
+                slider_value = (object_ray_point[0] - center[0]) / self._manipulator.width + 0.5
+                _min = self._manipulator.model.get_as_floats(self._manipulator.model.get_item("min"))[0]
+                _max = self._manipulator.model.get_as_floats(self._manipulator.model.get_item("max"))[0]
+                new_gesture_payload.slider_value = _min + slider_value * (_max - _min)
+                # Call the public gesture
+                self._manipulator._process_gesture(
+                    SliderManipulator.SliderChangedGesture, self.state, new_gesture_payload
+                )
+            # Base process of the gesture
+            super().process()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.width = 100
+        self.thickness = 5
+        self._radius = 5
+        self._radius_hovered = 7
+
+        def set_radius(circle, radius):
+            circle.radius = radius
+
+        # We don't recreate the gesture to make sure it's active when the
+        # underlying object is recreated
+        self._arc_gesture = self._ArcGesture(self)
+
+        if hasattr(sc, "HoverGesture"):
+            self._hover_gesture = sc.HoverGesture(
+                on_began_fn=lambda sender: set_radius(sender, self._radius_hovered),
+                on_ended_fn=lambda sender: set_radius(sender, self._radius),
+            )
+        else:
+            self._hover_gesture = None
+
+    def destroy(self):
+        pass
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        self._width = value
+        # Regenerate the mesh
+        self.invalidate()
+
+    @property
+    def thickness(self):
+        return self._thickness
+
+    @thickness.setter
+    def thickness(self, value):
+        self._thickness = value
+        # Regenerate the mesh
+        self.invalidate()
+
+    def on_build(self):
+        """Called when the model is chenged and rebuilds the whole slider"""
+        if not self.model:
+            return
+
+        # If we don't have a selection then just return
+        if self.model.get_item("name") == "":
+            return
+
+        _min = self.model.get_as_floats(self.model.get_item("min"))[0]
+        _max = self.model.get_as_floats(self.model.get_item("max"))[0]
+        value = float(self.model.get_as_floats(self.model.get_item("value"))[0])
+        value_normalized = (value - _min) / (_max - _min)
+        value_normalized = max(min(value_normalized, 1.0), 0.0)
+        position = self.model.get_as_floats(self.model.get_item("position"))
+
+        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(*position)):
+
+            # Left line
+            line_from = -self.width * 0.5
+            line_to = -self.width * 0.5 + self.width * value_normalized - self._radius # REPLACED THE 1 WITH value_normalized
+            if line_to > line_from:
+                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
+
+            # NEW: same as left line but flipped
+            # Right line
+            line_from = -self.width * 0.5 + self.width * value_normalized + self._radius
+            line_to = self.width * 0.5
+            if line_to > line_from:
+                sc.Line([line_from, 0, 0], [line_to, 0, 0], color=cl.darkgray, thickness=self.thickness)
+
+    
+            # Circle
+            circle_position = -self.width * 0.5 + self.width * 1
+            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(circle_position, 0, 0)):
+                radius = self._radius
+                gestures = [self._arc_gesture]
+                if self._hover_gesture:
+                    gestures.append(self._hover_gesture)
+
+                    if self._hover_gesture.state == sc.GestureState.CHANGED:
+                        radius = self._radius_hovered
+                sc.Arc(radius, axis=2, color=cl.gray)
+
+        # Label
+        with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
+            # NEW: Added more space between the slider and the label
+            # Move it to the top
+            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, self._radius_hovered, 0)):
+            # END NEW
+                with sc.Transform(scale_to=sc.Space.SCREEN):
+                # Move it 5 points more to the top in the screen space
+                    with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
+                        sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
 
     def on_model_updated(self, item):
         # Regenerate the manipulator
-        self.invalidate()
+        self.invalidate()     
 ```
 
 </details>
+
+## Step 8.9: 
 
 <br>
 <br>
