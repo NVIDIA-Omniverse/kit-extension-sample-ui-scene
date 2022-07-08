@@ -1,9 +1,23 @@
-# omni.example.ui.scene.widget_info
+# Omni.Ui_Scene.Object_Info 
 
-In this example we show how to leverage ui.scene.Widget to create a ui.Widget that is in 3D.
+![](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/raw/main/exts/omni.example.ui_scene.object_info/Tutorial/Images/objectinfo_finished.gif)
+​
+## Overview
 
-### The extension showcases view concepts.
+This Extension displays the selected primitive's Path and Type.
+​
+## [Tutorial](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/tree/main/exts/omni.example.ui_scene.object_info/Tutorial)
+This extension sample also includes a step-by-step tutorial to accelerate your growth as you learn to build your own Omniverse Kit extensions. 
 
-Similar to the other ui.scene example, it shows you how to setup the viewport scene in **viewport_scene.py**.
-Then there is the Manipulator object that manages the presentation of the item in **widget_info_manipulator.py**.
-Finally **widget_info_model.py** manages the model that connects the world with the manipulator.
+In the tutorial you will learn how to create an extension from the Extension Manager in Omniverse Code, set up your files, and use Omniverse's Library. Additionally, the tutorial has a `Final Scripts` folder to use as a reference as you go along. 
+
+​[Get started with the tutorial here.](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/tree/main/exts/omni.example.ui_scene.object_info/Tutorial)
+
+## Usage
+
+Once the extension is enabled in the `Extension Manager`, go to your `Viewport` and right-click to create a primitive - such as a cube, sphere, cyclinder, etc. Then, left-click/select the primitive to view the Object Info. 
+​
+
+
+## Contributing
+The source code for this repository is provided as-is and we are not accepting outside contributions.
