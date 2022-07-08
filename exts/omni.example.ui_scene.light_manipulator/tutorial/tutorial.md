@@ -1,4 +1,4 @@
-![](images/logo.png)
+![](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/tutorial/images/logo.png?raw=true)
 
 # Create a Reusable Light Panel with the Drag and Hover Gestures
 
@@ -342,4 +342,4 @@ r4.gestures = [_DragGesture(self, [0, 1], [-1, -1]), hight_all_gesture]
 ## 7. Congratulations!!
 Great job getting through this tutorial. Interested in improving your skills further? Please consider checking out the [Reticle Extension Tutorial](https://github.com/NVIDIA-Omniverse/kit-extension-sample-reticle/blob/main/tutorial/tutorial.md).
 
-![](images/logo.png)
+![](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/tutorial/images/logo.png?raw=true)
