@@ -1,9 +1,13 @@
 # Overview
 We provide an End-to-End example of a light manipulator extension, which adds manipulators to RectLight.
 
+There are 6 types of lights in Omniverse, shown in the image below. Here is the link of how to add a light: https://www.youtube.com/watch?v=c7qyI8pZvF4. In this example, we only create manipulators to RectLight.
+
+![](../data/lights.png)
+
 It contains the LightModel which stores the light attribute values. Focused on "width", "height" and "intensity" in this example. It also plays the role of communication with the USD data, reading and writing updated attributes from and to USD.
 
-LightManipulator defines 4 types of manipulators which separately controls the light's width, height, intensity and all of the three.
+LightManipulator defines 4 types of manipulators which separately control the light's width, height, intensity and all of the three.
 
 ###[Tutorial](../tutorial/tutorial.md)
 
@@ -12,7 +16,7 @@ Follow this [step-by-step guide](../tutorial/tutorial.md) to learn how this exte
 ## Manipulator
 The manipulator contains a rectangle and 4 lines perpendicular to the rectangle face. The manipulator is generated in a unit size, and the update of the look is through the parent transform of the manipulator.
 
- - When you hover over to the rectangle's width or height of the manipulator, you will see the width or height will be highlighted and you can drag and move the manipulator. When you drag and move the height or width of the rectangle of the manipulator, you will see the width or height attributes of the RectLight are updated.
+ - When you hover over the rectangle's width or height of the manipulator, you will see the line representation of the width or height highlighted and you can drag and move the manipulator. When you drag and move the height or width of the rectangle of the manipulator, you will see the width or height attributes of the RectLight in the property window are updated.
 
  ![](../data/width_s.png)     ![](../data/height_s.png)
 
@@ -24,13 +28,13 @@ The manipulator contains a rectangle and 4 lines perpendicular to the rectangle 
 
   ![](../data/preview_s.png)
 
- - When you change the attributes (Width, height and intensity) of the RectLight, you will see the manipulator appearance updates.
+ - When you change the attributes (Width, height and intensity) of the RectLight in the property window, you will see the manipulator appearance updates.
 
   ![](../data/attribute_s.png)
 
 ## Gesture
 The example defined a customized `_DragGesture` for the manipulator. This is how the gesture is implemented:
- - `on_began`: the start attributes data is restored into the model, so that we have a record of previous value later for running `omni.kit.commands`.
+ - `on_began`: the start attributes data is restored into the model, so that we have a record of previous values later for running `omni.kit.commands`.
  - `on_changed`: update the attributes into the model, and the model will directly write the value to the USD without keeping it since we want to see the real-time updating of attribute value in the property window
  - `on_ended`: update the attributes into the model, and the model will call `omni.kit.commands` to change the property since we want to support the undo/redo for the dragging. The previous value from `on_began` is used here.
 
@@ -42,20 +46,20 @@ The model contains the following named items:
  - prim_path - the USD prim path of the RectLight.
  - transform - the transform of the RectLight.
 
-The model is the bridge between the manipulator and the attributes data. The manipulator is subscribe to the model change to update the look. All the attributes value are directly coming from USD data.
+The model is the bridge between the manipulator and the attributes data. The manipulator subscribes to the model change to update the look. All the attributes values are directly coming from USD data.
 
 We use `Tf.Notice` to watch the rectLight and update the model. The model itself doesn't keep and doesn't duplicate the USD data, except the previous value when a gesture starts.
 
- - When model's `width`, `height` or `intensity` changes, the manipulator's parent transform is updated.
+ - When the model's `width`, `height` or `intensity` changes, the manipulator's parent transform is updated.
  - The model's `prim_path` is subscribed to `omni.usd.StageEventType.SELECTION_CHANGED`, so when the selection of RectLight is changed, the entire manipulator is redrawn.
- - When model's `transform` is changed, the root transform of the manipulator is updated.
+ - When the model's `transform` is changed, the root transform of the manipulator is updated.
 
 For width, height and intensity, the model demonstrates two strategies working with the data.
 It keeps the attribute data during the manipulating, so that the manipulator has the only one truth of data from the model. When the manipulator requests the attributes from the model, the model computes the position using USD API and returns it to the manipulator.
 
 # Overlaying with the viewport
 
-We use `sc.Manipulator` to draw manipulator in 3D view. To show it in the viewport, we overlay `sc.SceneView` with our `sc.Manipulator`
+We use `sc.Manipulator` to draw the manipulator in 3D view. To show it in the viewport, we overlay `sc.SceneView` with our `sc.Manipulator`
 on top of the viewport window.
 
 ```python
