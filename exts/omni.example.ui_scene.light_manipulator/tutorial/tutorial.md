@@ -23,8 +23,7 @@ In this guide, we will learn how to:
 It is recommended to understand the concepts in the following tutorials before proceeding:
 * How to make an extension by spawning primitives ([Link](https://github.com/NVIDIA-Omniverse/sample-kit-extension-spawnPrims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md))
 
-It also recommended to have the Omniverse Code version `2022.1.2`.
-
+It also required to have the Omniverse Code version `2022.1.4` or newer.
 
 ## 1. Download the Starter Project
 To get the assets for this hands-on lab, please clone the `tutorial-start` branch of the `kit-extension-sample-ui-scene` [github repository](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene). 
@@ -79,7 +78,7 @@ def on_build(self):
 
 When the manipulator is built, it will be passed a [model](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html#model) as defined in [light_model.py](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py). This model has a number of useful functions such as the ability to get and set the `height`, `width`, and `intensity` of the light. The [get_as_floats](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/18a3cb7f657c1c87be88810bc5544d2ab1efe673/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py#L137) function and the [set_floats](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/18a3cb7f657c1c87be88810bc5544d2ab1efe673/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py#L153) function allows us to retrieve or alter all of these values at once.
 
-If the model is not defined, then there isn't anything to manipulate, and the function ends. Similarly, we will be storing information in [USD format](https://developer.nvidia.com/usd) under the hood. We will need a location to store our [Prim](https://graphics.pixar.com/usd/release/glossary.html#usdglossary-prim), hence checking for a `prim_path`.
+If the model is not defined, then there isn't anything to manipulate, and the function ends. Similarly, we are interacting with a selectable `RectLight` which is available to us in the `prim_path` variable. 
 
 ## 2. Setting Line Style
 
@@ -107,7 +106,7 @@ def set_thickness(sender, shapes, thickness):
 
 ### 3.1 Theory
 
-If we give our light panel a [Transform](https://graphics.pixar.com/usd/release/tut_xforms.html), we can scale (change the size) of it more easily. To do that, we'll start from the top down, find the root transform of the model (`__root_xf`). Then, we'll create a Transform for translation (`_x_xform`), and then create a Transform for the shape (`_shape_xform`):
+If we give our light panel a [Transform](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Transform), we can scale (change the size) of it more easily. To do that, we'll start from the top down, find the root transform of the model (`self.__root_xf`). Then, we'll create a Transform for translation (`self._x_xform`), and then create a Transform for the shape (`self._shape_xform`):
 
 ```python
 self.__root_xf = sc.Transform(model.get_as_floats(model.transform))
@@ -119,7 +118,7 @@ with self.__root_xf:
         self._build_shape()
 ```
 
-Finally, the `_build_shape()` function sets the scale on the `_shape_xform` using the vector `[x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1]` where x is width, y is the height, and z is the light intensity.
+Finally, the `_build_shape()` function sets the scale on the `_shape_xform` using the vector `[x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1]` where x is width, y is the height, and z is the light intensity. In other words, it's a [scale matrix](https://en.wikipedia.org/wiki/Scaling_(geometry)#Using_homogeneous_coordinates).
 
 ```python
 def _build_shape(self):
@@ -257,7 +256,7 @@ z3_arrow = sc.Line((h, -h, z), (h, -h, z - ARROW_HEIGHT), **shape_style)
 z4_arrow = sc.Line((-h, h, z), (-h, h, z - ARROW_HEIGHT), **shape_style)
 ```
 
-While this draws the arrows, we still need to add gestures in order to change the light intensity while dragging an edge. We'll create a `set_visible` function that alters both the visibility of the arrows and the thickness of the edge lines. Then, we'll assign the gestures just like in section 4.
+While this draws the arrows, we still need to add the HoverGesture to show them. We'll create a `set_visible` function that alters both the visibility of the arrows and the thickness of the edge lines as part of our HoverGesture. Then, we will add The DragGestures in order to change the light intensity while dragging an arrow. 
 
 ```python
 def set_visible(sender, shapes, thickness, arrows, visible):
@@ -315,7 +314,7 @@ r3 = make_corner_rect((-h + 0.5 * s, h - 0.5 * s, 0))
 r4 = make_corner_rect((-h + 0.5 * s, -h + 0.5 * s, 0))
 ```
 
-Then, we can create another function (`set_color_and_visible`) in order to highlight all the edges at once with our `_DragGesture` function. In this case, we'll be passing in multiple orientations (`[0, 1]`) to indicate we're altering the width and height at the same time. 
+Then, we can create another function (`set_color_and_visible`) in order to highlight all the edges at once with our `HoverGesture`. Then, we'll be passing in multiple orientations (`[0, 1]`) to the `_DragGesture` to indicate we're altering the width and height at the same time. 
 
 ```python
 def set_color_and_visible(sender, shapes, thickness, arrows, visible, rects, color):
