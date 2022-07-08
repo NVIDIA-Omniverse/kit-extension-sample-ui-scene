@@ -1,9 +1,13 @@
 # Overview
 We provide an End-to-End example of a light manipulator extension, which adds manipulators to RectLight.
 
-It contains the LightModel which stores the light attribute values. Focused on "width", "height" and "intensity" in this example. It also plays the role of commnunication with the USD data, reading and writing updated attributes from and to USD.
+It contains the LightModel which stores the light attribute values. Focused on "width", "height" and "intensity" in this example. It also plays the role of communication with the USD data, reading and writing updated attributes from and to USD.
 
-LightManipulator defines 4 types of manipualtors which separately controls the light's width, height, intensity and all of the three.
+LightManipulator defines 4 types of manipulators which separately controls the light's width, height, intensity and all of the three.
+
+###[Tutorial](../tutorial/tutorial.md)
+
+Follow this [step-by-step guide](../tutorial/tutorial.md) to learn how this extension was created.
 
 ## Manipulator
 The manipulator contains a rectangle and 4 lines perpendicular to the rectangle face. The manipulator is generated in a unit size, and the update of the look is through the parent transform of the manipulator.
