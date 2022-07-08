@@ -24,6 +24,7 @@ To add a those extensions to your Omniverse app:
 ​
 For a better developer experience, it is recommended to create a folder link named `app` to the *Omniverse Kit* app installed from *Omniverse Launcher*. A convenience script to use is included.
 ​
+
 Run:
 ​
 ```bash
