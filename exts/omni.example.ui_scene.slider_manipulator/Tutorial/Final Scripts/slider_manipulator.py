@@ -136,7 +136,7 @@ class SliderManipulator(sc.Manipulator):
         self.invalidate()
 
     def on_build(self):
-        """Called when the model is chenged and rebuilds the whole slider"""
+        """Called when the model is  changed and rebuilds the whole slider"""
         if not self.model:
             return
 
@@ -183,15 +183,15 @@ class SliderManipulator(sc.Manipulator):
                  # END NEW
 
         # Label
-        with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
+            with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
             # NEW: Added more space between the slider and the label
             # Move it to the top
-            with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, self._radius_hovered, 0)):
+                with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, self._radius_hovered, 0)):
             # END NEW
-                with sc.Transform(scale_to=sc.Space.SCREEN):
+                    with sc.Transform(scale_to=sc.Space.SCREEN):
                 # Move it 5 points more to the top in the screen space
-                    with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
-                        sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
+                        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(0, 5, 0)):
+                            sc.Label(f"{value:.1f}", alignment=ui.Alignment.CENTER_BOTTOM)
 
     def on_model_updated(self, item):
         # Regenerate the manipulator
