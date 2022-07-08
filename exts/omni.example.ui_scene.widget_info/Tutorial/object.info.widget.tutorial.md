@@ -52,7 +52,6 @@ Check that the `UI Scene Object Info` Extension is enabled in the `Extensions Ma
 Then, you can open `VS Code` directly from the `Extension Manager`:
 <br>
 ![](./Images/openVS.PNG)
-
 <br>
 
 >:bulb:If you would like to know more about how we created the Modules for displaying Object Info, [check out the guide here.](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.object_info/Tutorial/object_info.tutorial.md)
