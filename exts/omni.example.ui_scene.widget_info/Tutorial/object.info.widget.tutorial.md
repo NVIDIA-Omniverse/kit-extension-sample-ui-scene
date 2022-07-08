@@ -21,12 +21,12 @@ It is required that you have completed the guide on [How to make an extension to
 - [Step 3: (optional) Create a Toggle Button](#step-3-optional-create-a-toggle-button) 
    - [Step 3.1: Adding the Feature to extension.py ](#step-31-adding-the-feature-to-extensionpy)
 - [Step 4: (optional) Adding a Slider ](#step-4-optional-adding-a-slider)
-   - [Step 4.1: Adding to widgetInfoManipulator.py ](#step-41-adding-to-widgetinfomanipulatorpy)
+   - [Step 4.1: Adding to widget_info_manipulator.py ](#step-41-adding-to-widgetinfomanipulatorpy)
 - [Congratulations!](#congratulations)
 
 
  # Step 1: Add Script to Object Info
-   As this will be using the same scripts we established in `object info`, we will be creating the `object info widget` module in the same file structure. So, just as you did previously, create a new file in the folder with `extension.py`, `objectInfoModel.py`, and `objectInfoManipulator.py`. We will name this new module `widgetInfoManipulator.py`.
+   As this will be using the same scripts we established in `object info`, we will be creating the `object info widget` module in the same file structure. So, just as you did previously, create a new file in the folder with `extension.py`, `object_info_model.py`, and `object_info_manipulator.py`. We will name this new module `widget_info_manipulator.py`.
 
    ![](./Images/widgetManipulatorCreated.gif)
 
@@ -34,7 +34,7 @@ It is required that you have completed the guide on [How to make an extension to
    ### Theory
    As with all of our previous scripts, we will start by importing from Omniverse, then begin our `WidgetInfoManipulator` class to hold our functions. These functions will create a label for the object info to live in as well as updating the model for when the model is changed. 
 
-   Let's go ahead and import from Omniverse at the top of our `widgetInfoManipulator.py` file, as so:
+   Let's go ahead and import from Omniverse at the top of our `widget_info_manipulator.py` file, as so:
 
    ```python
 from omni.ui import scene as sc
@@ -115,7 +115,7 @@ For the final part of this widget script, before we move onto the viewport, will
 ```
 
 <details>
-<summary>Click here for the end code of <b>widgetInfoManipulator.py</b></summary>
+<summary>Click here for the end code of <b>widget_info_manipulator.py</b></summary>
 
 ```python
 from omni.ui import scene as sc
@@ -182,10 +182,10 @@ First, import `widgetInfoManpulator.py` at the top of the file with the other im
 from omni.ui import scene as sc
 import omni.ui as ui
 
-from .objectInfoManipulator import ObjInfoManipulator
-from .objectInfoModel import ObjInfoModel
+from .object_info_manipulator import ObjInfoManipulator
+from .object_info_model import ObjInfoModel
 # NEW
-from .widgetInfoManipulator import WidgetInfoManipulator
+from .widget_info_manipulator import WidgetInfoManipulator
 # END NEW
 ```
 Next, inside of the `ViewportSceneInfo` class, we will add `display_widget` parameter to the init method:
@@ -229,9 +229,9 @@ class ViewportSceneInfo():
 from omni.ui import scene as sc
 import omni.ui as ui
 
-from .objectInfoManipulator import ObjInfoManipulator
-from .objectInfoModel import ObjInfoModel
-from .widgetInfoManipulator import WidgetInfoManipulator
+from .object_info_manipulator import ObjInfoManipulator
+from .object_info_model import ObjInfoModel
+from .widget_info_manipulator import WidgetInfoManipulator
 
 class ViewportSceneInfo():
     # NEW PARAMETER: display_widget
@@ -483,9 +483,9 @@ Here is what you should see in the viewport at this point:
 ### Theory
    In this step, we will be adding a slider to the widget created in Step 3. This slider will change the scale of the object. This is an optional step and may be skipped.
 
-## Step 4.1: Adding to widgetInfoManipulator.py
+## Step 4.1: Adding to widget_info_manipulator.py
 
- Just as we used `Omniverse UI Framework` to build the Object Info Widget in `widgetInfoManipulator.py` previously, we will be using UI Framework again to build the slider into this widget. Again, this slider is an optional feature to the widget but is a great way to add utility. 
+ Just as we used `Omniverse UI Framework` to build the Object Info Widget in `widget_info_manipulator.py` previously, we will be using UI Framework again to build the slider into this widget. Again, this slider is an optional feature to the widget but is a great way to add utility. 
 
  We will add this framework to `on_build_widgets` as so:
 
@@ -553,7 +553,7 @@ Here is what you should see in the viewport at this point:
  ```
 
  <details>
- <summary>Click here for the updated `widgetInfoManipulator.py` script  </summary>
+ <summary>Click here for the updated `widget_info_manipulator.py` script  </summary>
 
 ```python
 from omni.ui import scene as sc
