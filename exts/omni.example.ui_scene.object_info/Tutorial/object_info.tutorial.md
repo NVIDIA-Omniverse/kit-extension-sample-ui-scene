@@ -15,7 +15,7 @@ In this tutorial you learn how to:
   We recommend that you complete these tutorials before moving forward:
 
 - [Extension Environment Tutorial](https://github.com/NVIDIA-Omniverse/ExtensionEnvironmentTutorial)
-- [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims)
+- [How to make an extension by spawning prims](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims)
 
 > :exclamation: <span style="color:red"><b> WARNING: Check that Viewport Utility Extension is turned ON in the extension manager: </b></span> <br> ![](./Images/viewportUtilOn.PNG)
 
@@ -23,7 +23,7 @@ In this tutorial you learn how to:
 
 > **Note:** This is a review, if you know how to create an extension, feel free to skip this step.
 
-For this guide, we will briefly go over how to create an extension. If you have not completed [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims/blob/main/exts/omni.example.spawn_prims/tutorial/tutorial.md) we recommend you pause here and complete that before moving forward.
+For this guide, we will briefly go over how to create an extension. If you have not completed [How to make an extension by spawning prims](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims/blob/main/exts/omni.example.spawn_prims/tutorial/tutorial.md) we recommend you pause here and complete that before moving forward.
 
 ## Step 1.1: Create the extension template
 
@@ -99,7 +99,6 @@ Now that you've imported the viewport utility library, begin adding to the `MyEx
 In `on_startup()` set the `viewport_window` variable to the active viewport:
 
 ```python
-
 class MyExtension(omni.ext.IExt):
     # ext_id is current extension id. It can be used with extension manager to query additional information, like where
     # this extension is located on filesystem.
@@ -181,7 +180,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 ```
 
 ## Step 3.3: Initialize `ObjInfoModel`
-Use `__init__()` inside this class to initialize the object and events. In `__init__()`, set the variable for the current selected primitive:
+Use `__init__()` inside this class to initialize the object and events. In `__init__()`, set the variable for the current selected prim:
 
 ```python
 from omni.ui import scene as sc
@@ -282,31 +281,31 @@ class MyExtension(omni.ext.IExt):
 You should then create the object in `on_startup()` and destroy it later on in `on_shutdown()`:
 
 ```python
- def on_startup(self, ext_id):
-        print("[omni.objInfo.tutorial] MyExtension startup")
+def on_startup(self, ext_id):
+    print("[omni.objInfo.tutorial] MyExtension startup")
 
-        # Get the active Viewport (which at startup is the default Viewport)
-        viewport_window = get_active_viewport_window()
-        
-        # NEW: create the object
-        self.obj_model = ObjInfoModel()
-        
-        self._window = ui.Window("My Window", width=300, height=300)
-        with self._window.frame:
-            with ui.VStack():
-                ui.Label("Some Label")
+    # Get the active Viewport (which at startup is the default Viewport)
+    viewport_window = get_active_viewport_window()
+    
+    # NEW: create the object
+    self.obj_model = ObjInfoModel()
+    
+    self._window = ui.Window("My Window", width=300, height=300)
+    with self._window.frame:
+        with ui.VStack():
+            ui.Label("Some Label")
 
-                def on_click():
-                    # Print to see that we did grab the active viewport
-                    print(viewport_window)
+            def on_click():
+                # Print to see that we did grab the active viewport
+                print(viewport_window)
 
-                ui.Button("Click Me", clicked_fn=lambda: on_click())
+            ui.Button("Click Me", clicked_fn=lambda: on_click())
 
-    def on_shutdown(self):
-        """Called when the extension is shutting down."""
-        print("[omni.objInfo.tutorial] MyExtension shutdown")
-        # NEW: Destroy the model when created
-        self.obj_model.destroy()
+def on_shutdown(self):
+    """Called when the extension is shutting down."""
+    print("[omni.objInfo.tutorial] MyExtension shutdown")
+    # NEW: Destroy the model when created
+    self.obj_model.destroy()
 ```
 
 <details>
@@ -368,7 +367,7 @@ class MyExtension(omni.ext.IExt):
 
 # Step 5: Set the Stage
 
-At this point, there is nothing viewable in `Omniverse Code` as you have not created a stage for the viewport to reference an event happening. In this section you will set that stage by getting a reference to the selected object's information. By the end of step 4 you should be able to view the object info in the viewport.
+At this point, there is nothing viewable in Omniverse Code as you have not created a stage for the viewport to reference an event happening. In this section you will set that stage by getting a reference to the selected object's information. By the end of step 4 you should be able to view the object info in the viewport.
 
 > **Note:** Work in `object_info_model.py` for this section.
 
@@ -387,12 +386,11 @@ def on_stage_event(self, event):
     prim = stage.GetPrimAtPath(prim_path[0])
     self.prim = prim
     self.current_path = prim_path[0]
-    print("Primitive: " + str(prim))
-
-        ...
+    print("prim: " + str(prim))
+    ...
 ```
 
-You can check that this is working by navigating back to `Omniverse Code` and create a primitive in the viewport. When the primitive is created, it's path should display at the bottom. 
+You can check that this is working by navigating back to Omniverse Code and create a prim in the viewport. When the prim is created, it's path should display at the bottom. 
 
 ![](./Images/path%20displayed.PNG)
 
@@ -419,7 +417,6 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
         def __init__(self) -> None:
             super().__init__()
             self.value = [0, 0, 0]
-
     ...
 ```
 
@@ -447,7 +444,7 @@ def __init__(self) -> None:
     self.stage_event_delegate = self.events.create_subscription_to_pop(
         self.on_stage_event, name="Object Info Selection Update"
     )
-        ...
+    ...
 ```
 
 ## Step 6.3: Check the stage
@@ -609,9 +606,9 @@ Before moving on from `object_info_manipulator.py`, Navigate to the end of the f
 ```python
 ...
 
-    def on_model_updated(self, item):
-        # Regenerate the manipulator
-        self.invalidate()
+def on_model_updated(self, item):
+    # Regenerate the manipulator
+    self.invalidate()
 ```
 
 This method purges old memory when the model is updated. 
@@ -675,6 +672,7 @@ Create the `ViewportSceneInfo` class and initialize it with `__init__()`:
 
 ```python
 ...
+
 class ViewportSceneInfo():
     """The Object Info Manipulator, placed into a Viewport"""
     def __init__(self, viewport_window, ext_id) -> None:
@@ -687,6 +685,7 @@ To display the information, set the default SceneView. Then add the manipulator 
 
 ```python
 ...
+
 class ViewportSceneInfo():
     """The Object Info Manipulator, placed into a Viewport"""
     def __init__(self, viewport_window, ext_id) -> None:
@@ -709,19 +708,20 @@ Before closing out on `viewport_scene.py` don't forget to call `destroy()` to cl
 
 ```python
 ...
-    def __del__(self):
-        self.destroy()
 
-    def destroy(self):
-        if self.scene_view:
-            # Empty the SceneView of any elements it may have
-            self.scene_view.scene.clear()
-            # un-register the SceneView from Viewport updates
-            if self.viewport_window:
-                self.viewport_window.viewport_api.remove_scene_view(self.scene_view)
-        # Remove our references to these objects
-        self.viewport_window = None
-        self.scene_view = None
+def __del__(self):
+    self.destroy()
+
+def destroy(self):
+    if self.scene_view:
+        # Empty the SceneView of any elements it may have
+        self.scene_view.scene.clear()
+        # un-register the SceneView from Viewport updates
+        if self.viewport_window:
+            self.viewport_window.viewport_api.remove_scene_view(self.scene_view)
+    # Remove our references to these objects
+    self.viewport_window = None
+    self.scene_view = None
 ```
 
 <details>
@@ -798,7 +798,6 @@ from .object_info_model import ObjInfoModel
 As you removed the import from `object_info_model.py`, remove its' reference in the `__init__()` method and replace it with the `viewport_scene`:
 
 ```python
-
 class MyExtension(omni.ext.IExt):
     # ext_id is current extension id. It can be used with extension manager to query additional information, like where
     # this extension is located on filesystem.
@@ -813,41 +812,41 @@ Remove the start up code where you reference to create the object and the code f
 
 ```python
 ...
-    def on_startup(self, ext_id):
-       # # # !REMOVE! # # #
-        print("[omni.objInfo.tutorial] MyExtension startup")
 
-        viewport_window = get_active_viewport_window()
-        
-        self.obj_model = ObjInfoModel()
-       
-        self._window = ui.Window("My Window", width=300, height=300)
-        with self._window.frame:
-            with ui.VStack():
-                ui.Label("Some Label")
+def on_startup(self, ext_id):
+    # # # !REMOVE! # # #
+    print("[omni.objInfo.tutorial] MyExtension startup")
 
-                def on_click():
-                    print(viewport_window)
+    viewport_window = get_active_viewport_window()
+    
+    self.obj_model = ObjInfoModel()
+    
+    self._window = ui.Window("My Window", width=300, height=300)
+    with self._window.frame:
+        with ui.VStack():
+            ui.Label("Some Label")
 
-                ui.Button("Click Me", clicked_fn=lambda: on_click())
-         # # # END # # #
+            def on_click():
+                print(viewport_window)
 
-        # # # !REPLACE WITH! # # #
-        viewport_window = get_active_viewport_window()
-
-        self.viewport_scene = ViewportSceneInfo(viewport_window, ext_id)
+            ui.Button("Click Me", clicked_fn=lambda: on_click())
         # # # END # # #
 
+    # # # !REPLACE WITH! # # #
+    viewport_window = get_active_viewport_window()
+
+    self.viewport_scene = ViewportSceneInfo(viewport_window, ext_id)
+    # # # END # # #
 ```
 
 <details>
 <summary>Click to view final <b>on_startup</b> code</summary>
 
 ```python
-    def on_startup(self, ext_id):
-        viewport_window = get_active_viewport_window()
+def on_startup(self, ext_id):
+    viewport_window = get_active_viewport_window()
 
-        self.viewport_scene = ViewportSceneInfo(viewport_window, ext_id)
+    self.viewport_scene = ViewportSceneInfo(viewport_window, ext_id)
 ```
 
 </details>
@@ -860,12 +859,12 @@ Finally, update `on_shutdown()` to clean up the viewport:
 
 ```python
 ...
-    def on_shutdown(self):
-        """Called when the extension is shutting down."""
-        # NEW: updated to destroy viewportscene
-        if self.viewport_scene:
-            self.viewport_scene.destroy()
-            self.viewport_scene = None
+def on_shutdown(self):
+    """Called when the extension is shutting down."""
+    # NEW: updated to destroy viewportscene
+    if self.viewport_scene:
+        self.viewport_scene.destroy()
+        self.viewport_scene = None
 ```
 
 
@@ -909,11 +908,11 @@ class MyExtension(omni.ext.IExt):
 
 ## Congratulations! 
 
-You should be able to create a primitive in the viewport and view the Object Info at the world position `[0,0,0]`.
+You should be able to create a prim in the viewport and view the Object Info at the world position `[0,0,0]`.
 
 ![](./Images/step3_end_viewport.PNG)
 
->💡 Tip: If you are logging any errors in the Console in `Omniverse Code` after updating `extention.py` try refreshing the application.
+>💡 Tip: If you are logging any errors in the Console in Omniverse Code after updating `extention.py` try refreshing the application.
 
 <br>
 
@@ -950,7 +949,7 @@ def get_item(self, identifier):
 ```
 
  ## Step 10.3: Add `get_as_floats()`
- After adding to `get_item()`, create a new function to get the position of the primitive. Call this function `get_as_floats()`:
+ After adding to `get_item()`, create a new function to get the position of the prim. Call this function `get_as_floats()`:
 
 ```python
 ...
@@ -964,16 +963,15 @@ def get_item(self, identifier):
             return item.value
 
         return []
-    # END NEW
 ```
 This function requests the position and value from the item.
 
 ## Step 10.4: Define `get_position()`:
-Although you created this new function to get the position, you've yet to define the position. The position will be defined in a new function based on the bounding box we will create for the primitive. Name the new function `get_position()` and use it to get the stage:
+Although you created this new function to get the position, you've yet to define the position. The position will be defined in a new function based on the bounding box we will create for the prim. Name the new function `get_position()` and use it to get the stage:
 
 ```python
 ...
-    # NEW: new function that defines the position based on the bounding box of the primitive
+    # NEW: new function that defines the position based on the bounding box of the prim
     def get_position(self):
         stage = self.usd_context.get_stage()
         if not stage or self.current_path == "":
@@ -999,7 +997,7 @@ def get_position(self):
 ```
 
  ## Step 10.6: Find the top center
- Finally, find the top center of the bounding box. Additionally, add a small offset upward so that the information is not overlapping our primitive. Append this code to `get_position()`:
+ Finally, find the top center of the bounding box. Additionally, add a small offset upward so that the information is not overlapping our prim. Append this code to `get_position()`:
 
 ```python
 ...
@@ -1098,7 +1096,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
         return []
 
-    # defines the position based on the bounding box of the primitive
+    # defines the position based on the bounding box of the prim
     def get_position(self):
         stage = self.usd_context.get_stage()
         if not stage or self.current_path == "":
@@ -1161,13 +1159,13 @@ def on_build(self):
   ...
   ```
 
-# Step 12: Moving the Text with the Primitive
+# Step 12: Moving the Text with the prim
 
-In the viewport of `Omniverse Code`, the text does not follow our object despite positioning the label at the top center of the bounding box of the object. The text also remains in the viewport even when the object is no longer selected. In this final step we will be guiding you to cleaning up these issues.
+In the viewport, the text does not follow our object despite positioning the label at the top center of the bounding box of the object. The text also remains in the viewport even when the object is no longer selected. In this final step we will be guiding you to cleaning up these issues.
 
 > **Note:** Work in `object_info_model.py` for this section
 
-## 12.1: Import tf
+## 12.1: Import a `TFNotice`
 Place one more import into `object_info_model.py` at the top of the file, as so:
 
 ```python
@@ -1180,6 +1178,8 @@ from pxr import UsdGeom
 from omni.ui import scene as sc
 import omni.usd
 ```
+
+`tf`is of type `TFNotice` and you'll use it soon to receive notifications of any changes to the object 
 
 ### 12.2: Store the stage listener 
 Add a new variable to grab the stage listener under the second `__init__()` method:
@@ -1200,40 +1200,40 @@ def __init__(self) -> None:
 ...
 ```
 
-### 12.3: Add `on_stage_event()` 
+### 12.3: Handle prim selection events 
 Now, you need to add some code to `on_stage_event()`.
 
 You need to do a few things in this function, such as checking if the `prim_path` exists, turn off the manipulator if it does not, then check if the selected item is a `prim` and remove the stage listener if not. Additionally,  notice a change with the stage listener when the object has changed.
 
 ```python
 ...
-    def on_stage_event(self, event):
-        """Called by stage_event_stream.  We only care about selection changes."""
-        if event.type == int(omni.usd.StageEventType.SELECTION_CHANGED):
-            prim_path = self.usd_context.get_selection().get_selected_prim_paths()
+def on_stage_event(self, event):
+    """Called by stage_event_stream.  We only care about selection changes."""
+    if event.type == int(omni.usd.StageEventType.SELECTION_CHANGED):
+        prim_path = self.usd_context.get_selection().get_selected_prim_paths()
 
-            # NEW: if prim path doesn't exist we want to make sure nothing shows up because that means we do not have a prim selected
-            if not prim_path:
-                # This turns off the manipulator when everything is deselected
-                self.current_path = ""
-                self._item_changed(self.position)
-                return
+        # NEW: if prim path doesn't exist we want to make sure nothing shows up because that means we do not have a prim selected
+        if not prim_path:
+            # This turns off the manipulator when everything is deselected
+            self.current_path = ""
+            self._item_changed(self.position)
+            return
 
-            stage = self.usd_context.get_stage()
-            prim = stage.GetPrimAtPath(prim_path[0])
+        stage = self.usd_context.get_stage()
+        prim = stage.GetPrimAtPath(prim_path[0])
 
-            # NEW: if the selected item is not a prim we need to revoke the stagelistener since we don't need to update anything
-            if not prim.IsA(UsdGeom.Imageable):
-                self.prim = None
-                # Revoke the Tf.Notice listener, we don't need to update anything
-                if self.stage_listener:
-                    self.stage_listener.Revoke()
-                    self.stage_listener = None
-                return  
+        # NEW: if the selected item is not a prim we need to revoke the stagelistener since we don't need to update anything
+        if not prim.IsA(UsdGeom.Imageable):
+            self.prim = None
+            # Revoke the Tf.Notice listener, we don't need to update anything
+            if self.stage_listener:
+                self.stage_listener.Revoke()
+                self.stage_listener = None
+            return  
 
-            # NEW: Register a notice when objects in the scene have changed
-            if not self.stage_listener:
-                self.stage_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self.notice_changed, stage)
+        # NEW: Register a notice when objects in the scene have changed
+        if not self.stage_listener:
+            self.stage_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self.notice_changed, stage)
 
 ```
 
@@ -1275,12 +1275,12 @@ In the final step, create a new function that will be called if there are multip
 
 ```python
 ...
-    # NEW: function that will get called when objects change in the scene. We only care about our selected object so we loop through all notices that get passed along until we find ours
-    def notice_changed(self, notice: Usd.Notice, stage: Usd.Stage) -> None:
-        """Called by Tf.Notice.  Used when the current selected object changes in some way."""
-        for p in notice.GetChangedInfoOnlyPaths():
-            if self.current_path in str(p.GetPrimPath()):
-                self._item_changed(self.position)
+# NEW: function that will get called when objects change in the scene. We only care about our selected object so we loop through all notices that get passed along until we find ours
+def notice_changed(self, notice: Usd.Notice, stage: Usd.Stage) -> None:
+    """Called by Tf.Notice.  Used when the current selected object changes in some way."""
+    for p in notice.GetChangedInfoOnlyPaths():
+        if self.current_path in str(p.GetPrimPath()):
+            self._item_changed(self.position)
 
 ...
 ```
@@ -1412,6 +1412,6 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
 # Congratulations! 
 
-Your viewport should now display the object info above the selected object and move with the primitive in the scene. You have successfully created the Object Info Extension!
+Your viewport should now display the object info above the selected object and move with the prim in the scene. You have successfully created the Object Info Extension!
 
 ![](./Images/objectinfo_finished.gif)
