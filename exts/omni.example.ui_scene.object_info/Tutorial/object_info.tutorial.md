@@ -1,6 +1,6 @@
 # How to make an extension to display Object Info
 
-The object info extension displays the selected primitive’s Path and Type. This guide is great for first time extension builders.
+The object info extension displays the selected prim’s Path and Type. This guide is great for first time extension builders.
 
   > NOTE: Visual Studio Code is the preferred IDE, hence forth we will be referring to it throughout this guide. 
 
@@ -8,7 +8,7 @@ The object info extension displays the selected primitive’s Path and Type. Thi
 
 In this tutorial you learn how to:
 - Create an extension in Omniverse Code
-- Use Omniverse Viewport Library
+- Use the omni.ui.scene API
 - Display object info in the viewport
 - Translate from World space to Local space
 # Prerequisites
@@ -23,7 +23,7 @@ In this tutorial you learn how to:
 
 > **Note:** This is a review, if you know how to create an extension, feel free to skip this step.
 
-For this guide, we will briefly go over how to create an extension. If you have not completed [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawnprims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md) we recommend you pause here and complete that before moving forward.
+For this guide, we will briefly go over how to create an extension. If you have not completed [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims/blob/main/exts/omni.example.spawn_prims/tutorial/tutorial.md) we recommend you pause here and complete that before moving forward.
 
 ## Step 1.1: Create the extension template
 
@@ -40,7 +40,7 @@ For this guide, we will briefly go over how to create an extension. If you have 
 
 <br>
 
-A new extension template window and Visual Studio Code will open after you have select the folder location, folder name, and extension ID. 
+A new extension template window and Visual Studio Code will open after you have selected the folder location, folder name, and extension ID. 
 
 ## Step 1.2: Naming your extension
 
@@ -67,7 +67,7 @@ Inside of this file, there is a title and description for how the extension will
 
 # Step 2: Print the active viewport
 
-In this section, you import a viewport utility into `extension.py`. Then, you use it to store the active viewport. Finally, you display the active viewport to the console. 
+In this section, you import a viewport utility into `extension.py`. Then, you use it to store the active viewport. Finally, you will print the name of the active viewport to the console. 
 
 ## Step 2.1: Navigate to `extension.py`
 
@@ -80,9 +80,9 @@ This module contains boilerplate code for building a new extension:
 ![extension.py script](./Images/step2.extension_script.PNG)
 
 
-## Step 2.2: Import the Viewport
+## Step 2.2: Import the Viewport Utility
 
-Import the viewport:
+Import the viewport utility:
 
   ```python
 import omni.ext
@@ -92,7 +92,7 @@ import omni.ui as ui
 from omni.kit.viewport.utility import get_active_viewport_window
   ```
 
-Now that you've imported the viewport library, begin adding to the `MyExtension`class.
+Now that you've imported the viewport utility library, begin adding to the `MyExtension` class.
 
 ## Step 2.3: Get the activate viewport window 
 
@@ -139,24 +139,24 @@ Navigate to Omniverse Code, click the **Click Me** button inside of *My Window*,
 
 Here you see the result of the print statement you added in the last step.
 
-> **Tip:** If you encounter an error in your console, please refer to the [Viewport Utility tip in Prereqs](#prerequisites)
+> **Tip:** If you encounter an error in your console, please refer to the [Viewport Utility tip in Prerequisites](#prerequisites)
 
   <br>
 
-## Step 2.6: Create the Object Info Model Script
+## Step 2.6: Create the Object Info Model module
 
-In this new script, you will create the necessary information for the object information to be called, such as the selected primitive and tracking when the selection changes. you will also create a stage to be set later on. 
+In this new module, you will create the necessary information for the object information to be called, such as the selected prim and tracking when the selection changes. you will also create a stage to be set later on. 
    
 Create a file in the same file location as `extension.py` and name it `object_info_model.py`.
 
   <br>
 
-  # Step 3: Object Model Script Code
-  > **Note:** Work in the `object_info_model.py` script for this section. 
+  # Step 3: Object Info Model module Code
+  > **Note:** Work in the `object_info_model.py` module for this section. 
 
 <br>
 
-The objective of this step is to import and set the basic information that the `Manipulator` and `Viewport` will need to display on the selected primitive. 
+The objective of this step is to get the basic information that the `Manipulator` and `Viewport` will need to display on the selected prim. 
 
 ## Step 3.1: Import scene from `omni.ui`
 As with `extension.py`, import `scene` from `omni.ui` to utilize scene related utilities. Also import `omni.usd`.
@@ -165,8 +165,6 @@ As with `extension.py`, import `scene` from `omni.ui` to utilize scene related u
 from omni.ui import scene as sc
 import omni.usd
 ```
-
-The `scene` variable will be used to get information regarding the selected primitive.
 
 ## Step 3.2: Begin setting up variables
 Next, create a new class and begin setting variables. Create the `ObjInfoModel` below the imports:
@@ -183,7 +181,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 ```
 
 ## Step 3.3: Initialize `ObjInfoModel`
-Use `__init__()` inside this class to initialize the object and events. In `__Init__()`, set the variable for the current selected primitive:
+Use `__init__()` inside this class to initialize the object and events. In `__init__()`, set the variable for the current selected primitive:
 
 ```python
 from omni.ui import scene as sc
@@ -202,8 +200,8 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
         self.position = [0, 0, 0]
 ```
 
-## Step 3.4: Store the USD context
-Finally, save the USD Context variable ([see here for more information on USD in Omniverse](https://docs.omniverse.nvidia.com/plat_omniverse/plat_omniverse/usd.html)), track when selection changes, and create a stage event to be used later on:
+## Step 3.4: Use UsdContext to listen for selection changes
+Finally, get the `UsdContext` ([see here for more information on UsdContext](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.usd/docs/index.html#omni.usd.UsdContext)) to track when the selection changes  and create a stage event callback function to be used later on:
 
 ```python
 from omni.ui import scene as sc
@@ -241,7 +239,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
 <br>
 
-It's important to include `destroy()` in the model script. This will free the memory as well as clear the screen to prevent any accumlation of events. 
+It's important to include `destroy()` in the model class. You want to unsubscribed from events when the model is destroyed. 
 
 <br>
 
@@ -249,7 +247,7 @@ It's important to include `destroy()` in the model script. This will free the me
 
 > **Note:** Work in `extension.py` for this section. 
 
-Now that you've have created `object_info_model.py`, you need to do a few things in `extension.py` to reflect the object model, such as import from the model class, create a reference and the object, then destroy the model when the extension is shutdown. 
+Now that you have created `object_info_model.py`, you need to do a few things in `extension.py` to reflect the object model, such as import from the model class, create a reference and the object, then destroy the model when the extension is shutdown. 
 
 ## Step 4.1: Import extention.py
 import into `extension.py` from `object_info_model.py`:
@@ -266,7 +264,7 @@ from .object_info_model import ObjInfoModel
 ```
 
 ## Step 4.2: Reference the object model
-Now reference the object model in `__init()__` of the `MyExtension` Class:
+Create a variable for object model in `__init()__` of the `MyExtension` Class:
 
 ```python
 class MyExtension(omni.ext.IExt):
@@ -281,7 +279,7 @@ class MyExtension(omni.ext.IExt):
 ```
 
 ## Step 4.3: Manage the object
-This allows you to create the object in `on_startup()` and destroy it later on in `on_shutdown()`:
+You should then create the object in `on_startup()` and destroy it later on in `on_shutdown()`:
 
 ```python
  def on_startup(self, ext_id):
@@ -376,7 +374,7 @@ At this point, there is nothing viewable in `Omniverse Code` as you have not cre
 
 At this point, you have created the start of the Stage Event in `object_info_model.py` but there is nothing happening in the event. 
 
-Replace what's in `on_stage_event` with the variable for the primitive path and where that path information is located:
+Replace what's in `on_stage_event` with the variable for the prim path and where that path information is located:
 
 ```python
 def on_stage_event(self, event):
