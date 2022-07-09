@@ -10,33 +10,16 @@ In this guide you will learn how to:
  - (optional) Create a toggle button feature
  - (optional) Create a slider
 
-# Prereqs
+# Prerequisites
+
 It is recommended that you have completed the following:
 
 - [Extension Enviroment Tutorial](https://github.com/NVIDIA-Omniverse/ExtensionEnvironmentTutorial)
 - [How to make an extension to display Object Info](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/tree/main/exts/omni.example.ui_scene.object_info/Tutorial) 
 
+# Step 1: Create a Widget Module
 
-# Table of Contents
-- [Step 1: Create the Widget Module ](#step-1-create-the-widget-module)
-  - [Step 1.1: Clone Slider Tutorial Branch](#step-11-clone-slider-tutorial-branch)
-  - [Step 1.2: Add Extension Path to Extension Manager](#step-12-add-extension-path-to-extension-manager)
-  - [Step 1.3: Create the Module](#step-13-create-the-widget-module)
-  - [Step 1.4: Create the Ui Framework](#step-14-create-the-ui-framework)
-  - [Step 1.5: Create Manipulator Functions](#step-15-create-manipulator-functions)
-- [Step 2: Update Viewport and Extensions](#step-2-update-viewport-and-extension)
-  - [Step 2.1: Updating viewport_scene.py](#step-21-updating-viewportscenepy)
-  - [Step 2.2: Updating extension.py](#step-22-updating-extensionpy)
-- [Step 3: (optional) Create a Toggle Button](#step-3-optional-create-a-toggle-button)
-  - [Step 3.1: Add the Button to extension.py](#step-31-add-the-button-to-extensionpy)
-- [Step 4:(optional) Add a Slider](#step-4-optional-add-a-slider)
-  - [Step 4.1:Add to widget_info_manipulator.py](#step-41-add-to-widgetinfomanipulatorpy)
-- [Congratulations!](#congratulations)
-
-
-# Step 1: Create the Widget Module
-
-In this series of steps, you will be setting up your Extension to create the module needed for the widget.
+In this series of steps, you will be setting up your Extension to create a module needed for a widget.
 
 ## Step 1.1: Clone Slider Tutorial Branch
 
@@ -44,43 +27,40 @@ In this series of steps, you will be setting up your Extension to create the mod
 
  ## Step 1.2: Add Extension Path to Extension Manager
 
- Add the local path of `exts` from `slider-tutorial-start` cloned from the [github respositiory.](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene)
- 
- Then import the extension into the `Extensions Manager` in `Omniverse Code` by selecting the `Extensions` tab and locate the gear icon. 
+Open the `Extensions Manager` in `Omniverse Code` 
 
- Select this icon to open `Extensions Search Paths`. Locate the <span style="color:green">green</span> :heavy_plus_sign: icon at the bottom right of that console to add a new path. Then copy/paste the local path of the `exts` folder, as so:
-<br>
+Select gear icon to display `Extension Search Paths`. 
+
+Use the <span style="color:green">green</span> :heavy_plus_sign: to add the path to `exts/slider-tutorial-start` from the cloned directory.
+
 ![](./Images/add_ext.PNG)
 
 
 
->:memo: Check that the `UI Scene Object Info` Extension is enabled in the `Extensions Manager` and working by creating a new primitive in the `Viewport` and selecting it, the object's path and info should be displayed above the object.
+:memo: Check that the `UI Scene Object Info` Extension is enabled in the `Extensions Manager` and working by creating a new primitive in the `Viewport` and selecting it, the object's path and info should be displayed above the object.
 
-<br>
 
-You can open `VS Code` directly from the `Extension Manager`:
-<br>
+## Step 1.3 Open VS Code with Shortcut
+
+Open `VS Code` directly from the `Extension Manager`
 
 ![](./Images/openVS.PNG)
-<br>
+
+:bulb:If you would like to know more about how to create the Modules for displaying Object Info, [check out the guide here.](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.object_info/Tutorial/object_info.tutorial.md)
 
 
->:bulb:If you would like to know more about how we created the Modules for displaying Object Info, [check out the guide here.](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.object_info/Tutorial/object_info.tutorial.md)
+## Step 1.4: Create the Module
 
-<br>
+Create a new script called `object_info_widget.py` in the `exts` hierarchy that our other modules are located in. 
 
- ## Step 1.3: Create the Module
+This will be our Widget Module.
 
-Create a new script called `object_info_widget.py` in the `exts` hierarchy that our other modules are located in. This will be our Widget Module.
-
-The Widget module will be building off the Object Info Modules that we provided for you. You will see these modules as `object_info_manipulator.py`, `object_info_model.py`, `viewport_scene.py`, and an updated `extension.py`.
+The Widget module will be building off the Object Info Modules provided for you. You will see these modules as `object_info_manipulator.py`, `object_info_model.py`, `viewport_scene.py`, and an updated `extension.py`.
 
 
-   >:memo: Visual Studio Code (VS Code) is our preferred IDE, hence forth we will be referring to it throughout this guide.
+:memo: Visual Studio Code (VS Code) is our preferred IDE, hence forth referred to throughout this guide.
 
-<br>
-
-   ## Step 1.3: Set up Widget Class
+## Step 1.5: Set up Widget Class
 
 Inside of the `object_info_widget.py`, import `omni.ui` then create the `WidgetInfoManipulator` class to nest our functions. Aftter, initialize our methods, as so:
 
@@ -102,9 +82,9 @@ class WidgetInfoManipulator(sc.Manipulator):
 
 This widget will house our object info to make the information contrasted in the viewport and add other utilities later on.
 
-We will accomplish this by structuring a box for the label with a background color.
+You will accomplish this by structuring a box for the label with a background color.
 
-## Step 1.4: Create the Ui Framework
+## Step 1.6: Create the Ui Framework
 
 Let's define this as `on_build_widgets` and use the `Omniverse UI Framework` to create the label for this widget in a `ZStack`. [See here for more documentation on Omniverse Ui Framework](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui/docs/index.html).
 
@@ -114,7 +94,7 @@ Let's define this as `on_build_widgets` and use the `Omniverse UI Framework` to 
         with ui.ZStack():
 ```
 
-Once we have established the UI layout, we can create the background for the widget using `ui.Rectangle` and set the border attributes and background color. We can then create the `ui.Label` and set its alignment, as so:
+Once you have established the UI layout, you can create the background for the widget using `ui.Rectangle` and set the border attributes and background color. You can then create the `ui.Label` and set its alignment, as so:
 
 ```python
 ...
@@ -129,9 +109,9 @@ Once we have established the UI layout, we can create the background for the wid
             self._name_label = ui.Label("", height=0, alignment=ui.Alignment.CENTER)
 ```
 
-## Step 1.5: Create Manipulator Functions
+## Step 1.7: Create Manipulator Functions
 
-With a Manipulator, we need to define an `on_build` function.
+With a Manipulator, you need to define an `on_build` function.
 
  This function is called when the model is changed so that the framework is rebuilt. [You can find more information about the Manipulator here.](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html)
 
@@ -149,12 +129,12 @@ With a Manipulator, we need to define an `on_build` function.
                     self._widget.frame.set_build_fn(self.on_build_widgets)
 ```
 
-Now define `on_model_updated` function that was called above. In this function we need to establish what happens if nothing is selected, when to update the shapes, and when to update the shape name, as so:
+Now define `on_model_updated` function that was called above. In this function you need to establish what happens if nothing is selected, when to update the shapes, and when to update the shape name, as so:
 
 ```python
 ...
     def on_model_updated(self, _):
-        # if we don't have selection then show nothing
+        # if you don't have selection then show nothing
         if not self.model or not self.model.get_item("name"):
             self._root.visible = False
             return
@@ -208,7 +188,7 @@ class WidgetInfoManipulator(sc.Manipulator):
                     self._widget.frame.set_build_fn(self.on_build_widgets)
 
     def on_model_updated(self, _):
-        # if we don't have selection then show nothing
+        # if you don't have selection then show nothing
         if not self.model or not self.model.get_item("name"):
             self._root.visible = False
             return
@@ -224,17 +204,14 @@ class WidgetInfoManipulator(sc.Manipulator):
 
 </details>
 
-<br>
 
 # Step 2: Update Viewport and Extension
 
-  Now that we have created a new script, it is important for us to bring this information into `viewport_scene.py` and update `extension.py` to reflect these new changes.
+  Now that you have created a new script, it is important for us to bring this information into `viewport_scene.py` and update `extension.py` to reflect these new changes.
 
-  ## Step 2.1: Updating viewport_scene.py
+  ## Step 2.1: Import Widget Info
 
-Let's start by updating `viewport_scene.py`.
-
-First, import `widget_info_manpulator.py` at the top of the file with the other imports, as so:
+Begin by updating `viewport_scene.py` and importing `widget_info_manpulator.py` at the top of the file with the other imports.
 
 ```python
 from omni.ui import scene as sc
@@ -247,7 +224,9 @@ from .widget_info_manipulator import WidgetInfoManipulator
 # END NEW
 ```
 
-Next, inside of the `ViewportSceneInfo` class, we will add `display_widget` parameter to the init method:
+### Step 2.2: Add Display WIdget
+
+Inside the `ViewportSceneInfo` class, you will add a `display_widget` parameter to the init method:
 
 ```python
 ...
@@ -259,7 +238,9 @@ class ViewportSceneInfo():
 ...
 ```
 
-Let's define the parameters of `display_widget` as so:
+### Step 2.3: Define Display Widget
+
+Define the parameters of `display_widget` as so:
 
 ```python
 ...
@@ -281,8 +262,6 @@ class ViewportSceneInfo():
                     ObjInfoManipulator(model=ObjInfoModel())
 ...
 ```
-<br>
-
 <details>
 <summary>Click here for the updated <b>viewport_scene.py</b></summary>
 
@@ -328,11 +307,12 @@ class ViewportSceneInfo():
 
 <br>
 
-## Step 2.2: Updating extension.py
+## Step 3: Update `extension.py`
 
-Now that we have created the widget and passed it into the viewport, we need to call this in the `extension.py` script for it to function.
+Now that you have created the widget and passed it into the viewport, you need to call this in the `extension.py` script for it to function.
+### Step 3.1: Edit the Class Name
 
-We are going to start by changing the class name of `extension.py` from `MyExtension` to something more descriptive, like `ObjectInfoWidget`:
+Start by changing the class name of `extension.py` from `MyExtension` to something more descriptive, like `ObjectInfoWidget`:
 
 ```python
 ...
@@ -349,7 +329,9 @@ class ObjectInfoWidget(omni.ext.IExt):
         self.viewportScene = None
 ```
 
-Next, let's pass the new parameter in `on_startup` as follows:
+### Step 3.2: Pass the Parameter
+
+Pass the new parameter in `on_startup` as follows:
 
 ```python
 ...
@@ -392,18 +374,17 @@ class ObjectInfoWidget(omni.ext.IExt):
 ```
 
 </details>
-<br>
 
-You should see these updates in `Omniverse Code` at this point:
-<br>
+Excellent, You should now see these updates in `Omniverse Code` at this point.
+
 ![](./Images/step2_complete.gif)
 
 
-# Step 3: (Optional) Create a Toggle Button
+## Step 4: Create a Toggle Button
 
-  In this section we will create a button that enables us to turn the object info widget on and off in the viewport. This feature is built in `extension.py` and is an optional section. If you do not want the toggle button, feel free to skip this part. 
+  In this section you will create a button that enables us to turn the object info widget on and off in the viewport. This feature is built in `extension.py` and is an optional section. If you do not want the toggle button, feel free to skip this part. 
 
-## Step 3.1: Add the button to extension.py
+## Step 4.1: Add the button to `extension.py`
 
 First initialize new values in `extension.py` for `viewport_scene`,`widget_view`, and `ext_id`, as follows:
 
@@ -419,9 +400,13 @@ class ObjectInfoWidget(omni.ext.IExt):
         # END NEW
 ```
 
-Next, update `on_startup` to create a new window for the button. 
+### Step 4.2 Update Startup
 
-After creating the window, add a pass for the new value, `widget_view_on`, like so:
+Update `on_startup` to create a new window for the button. 
+
+### Step 4.3 Add a Pass
+
+After creating the window, add a pass for the new value, `widget_view_on`.
 
 ```python
 ...
@@ -442,10 +427,11 @@ After creating the window, add a pass for the new value, `widget_view_on`, like 
         self.viewport_scene = ViewportSceneInfo(viewport_window, ext_id, self.widget_view_on)
 ...
 ```
+### Step 4.4 Create the Toggle
 
-Now, call `toggle_view` function.
+Call `toggle_view` function.
 
-This function will be binded to the button's clicked function, thus requring an `if` statement to check when the button is on/off:
+This function will be bound to the button's clicked function, thus requiring an `if` statement to check when the button is on/off:
 
 ```python
 ...
@@ -463,13 +449,15 @@ This function will be binded to the button's clicked function, thus requring an 
 ...
 ```
 
-Since this button is used in more than one spot, create the function `reset_viewport_scene`.
+### Step 4.5: Create Reset Viewport Scene Function
+
+This button is used in more than one spot, therefore create the function `reset_viewport_scene`.
 
 This function will purge our scene when the button is reset.
 
 ```python
 ...
-    # NEW: New function for reseting the viewport scene (since this will be used in more than one spot)
+    # NEW: New function for resetting the viewport scene (since this will be used in more than one spot)
     def reset_viewport_scene(self):
         if self.viewport_scene:
             self.viewport_scene.destroy()
@@ -478,7 +466,9 @@ This function will purge our scene when the button is reset.
 ...
 ```
 
-FInally, update `on_shutdown` to remove the `viewport_scene` parameters we moved into the reset function and then call that function.
+### Step 4.6: Reset Viewport Scene on Shutdown
+
+Update `on_shutdown` to remove the `viewport_scene` parameters you moved into the reset function and then call that function.
 
 ```python
 ...
@@ -550,11 +540,11 @@ Here is what you should see in the viewport at this point:
 
 ![](./Images/togglewidget_window.gif)
 
-# Step 4: (Optional) add a Slider
+## Step 5: add a Slider
 
-   In this step, we will be adding a slider to the widget created in Step 3. This slider will change the scale of the object. This is an optional step and may be skipped as it is just to showcase a simple addition of what a widget can do. For a more complex slider, [check out the guide to `Slider Manipulator` here.](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.slider_manipulator/Tutorial/slider_Manipulator_Tutorial.md)
+   In this step, you will be adding a slider to the widget created in Step 3. This slider will change the scale of the object. This is an optional step and may be skipped as it is just to showcase a simple addition of what a widget can do. For a more complex slider, [check out the guide to `Slider Manipulator` here.](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.slider_manipulator/Tutorial/slider_Manipulator_Tutorial.md)
 
-## Step 4.1: Add to widget_info_manipulator.py
+### Step 5.1: Add to `widget_info_manipulator.py`
 
 Use `Omniverse Ui Framework` to build the framework for the slider in the function `on_build_widgets`.
 
@@ -588,13 +578,16 @@ This slider is an optional feature to the widget but is a great way to add utili
         self.on_model_updated(None)
 ...
  ```
+### Step 5.2: Update the Scale with a Slider Function
 
-Add a new function that will scale the model when the slider is dragged. Call this function after `on_model_updated` and name it `update_scale`.
+Add a new function that will scale the model when the slider is dragged.
+
+Call this function after `on_model_updated` and name it `update_scale`.
 
  ```python
  ...
     def on_model_updated(self, _):
-        # if we don't have selection then show nothing
+        # if you don't have selection then show nothing
         if not self.model or not self.model.get_item("name"):
             self._root.visible = False
             return
@@ -675,7 +668,7 @@ class WidgetInfoManipulator(sc.Manipulator):
                     self._widget.frame.set_build_fn(self.on_build_widgets)
 
     def on_model_updated(self, _):
-        # if we don't have selection then show nothing
+        # if you don't have selection then show nothing
         if not self.model or not self.model.get_item("name"):
             self._root.visible = False
             return
@@ -716,4 +709,4 @@ class WidgetInfoManipulator(sc.Manipulator):
 
  # Congratulations!
 
- You have successfully created a Widget Extension for the Object Info! 
+ You have successfully created a Widget Extension for `object.info`! 
