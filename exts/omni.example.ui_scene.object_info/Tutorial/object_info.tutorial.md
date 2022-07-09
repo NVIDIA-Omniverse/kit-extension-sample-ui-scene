@@ -15,7 +15,7 @@ In this tutorial you learn how to:
   We recommend that you complete these tutorials before moving forward:
 
 - [Extension Environment Tutorial](https://github.com/NVIDIA-Omniverse/ExtensionEnvironmentTutorial)
-- [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims)
+- [How to make an extension by spawning prims](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims)
 
 > :exclamation: <span style="color:red"><b> WARNING: Check that Viewport Utility Extension is turned ON in the extension manager: </b></span> <br> ![](./Images/viewportUtilOn.PNG)
 
@@ -23,7 +23,7 @@ In this tutorial you learn how to:
 
 > **Note:** This is a review, if you know how to create an extension, feel free to skip this step.
 
-For this guide, we will briefly go over how to create an extension. If you have not completed [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims/blob/main/exts/omni.example.spawn_prims/tutorial/tutorial.md) we recommend you pause here and complete that before moving forward.
+For this guide, we will briefly go over how to create an extension. If you have not completed [How to make an extension by spawning prims](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims/blob/main/exts/omni.example.spawn_prims/tutorial/tutorial.md) we recommend you pause here and complete that before moving forward.
 
 ## Step 1.1: Create the extension template
 
@@ -181,7 +181,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 ```
 
 ## Step 3.3: Initialize `ObjInfoModel`
-Use `__init__()` inside this class to initialize the object and events. In `__init__()`, set the variable for the current selected primitive:
+Use `__init__()` inside this class to initialize the object and events. In `__init__()`, set the variable for the current selected prim:
 
 ```python
 from omni.ui import scene as sc
@@ -387,12 +387,12 @@ def on_stage_event(self, event):
     prim = stage.GetPrimAtPath(prim_path[0])
     self.prim = prim
     self.current_path = prim_path[0]
-    print("Primitive: " + str(prim))
+    print("prim: " + str(prim))
 
         ...
 ```
 
-You can check that this is working by navigating back to `Omniverse Code` and create a primitive in the viewport. When the primitive is created, it's path should display at the bottom. 
+You can check that this is working by navigating back to `Omniverse Code` and create a prim in the viewport. When the prim is created, it's path should display at the bottom. 
 
 ![](./Images/path%20displayed.PNG)
 
@@ -909,7 +909,7 @@ class MyExtension(omni.ext.IExt):
 
 ## Congratulations! 
 
-You should be able to create a primitive in the viewport and view the Object Info at the world position `[0,0,0]`.
+You should be able to create a prim in the viewport and view the Object Info at the world position `[0,0,0]`.
 
 ![](./Images/step3_end_viewport.PNG)
 
@@ -950,7 +950,7 @@ def get_item(self, identifier):
 ```
 
  ## Step 10.3: Add `get_as_floats()`
- After adding to `get_item()`, create a new function to get the position of the primitive. Call this function `get_as_floats()`:
+ After adding to `get_item()`, create a new function to get the position of the prim. Call this function `get_as_floats()`:
 
 ```python
 ...
@@ -969,11 +969,11 @@ def get_item(self, identifier):
 This function requests the position and value from the item.
 
 ## Step 10.4: Define `get_position()`:
-Although you created this new function to get the position, you've yet to define the position. The position will be defined in a new function based on the bounding box we will create for the primitive. Name the new function `get_position()` and use it to get the stage:
+Although you created this new function to get the position, you've yet to define the position. The position will be defined in a new function based on the bounding box we will create for the prim. Name the new function `get_position()` and use it to get the stage:
 
 ```python
 ...
-    # NEW: new function that defines the position based on the bounding box of the primitive
+    # NEW: new function that defines the position based on the bounding box of the prim
     def get_position(self):
         stage = self.usd_context.get_stage()
         if not stage or self.current_path == "":
@@ -999,7 +999,7 @@ def get_position(self):
 ```
 
  ## Step 10.6: Find the top center
- Finally, find the top center of the bounding box. Additionally, add a small offset upward so that the information is not overlapping our primitive. Append this code to `get_position()`:
+ Finally, find the top center of the bounding box. Additionally, add a small offset upward so that the information is not overlapping our prim. Append this code to `get_position()`:
 
 ```python
 ...
@@ -1098,7 +1098,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
         return []
 
-    # defines the position based on the bounding box of the primitive
+    # defines the position based on the bounding box of the prim
     def get_position(self):
         stage = self.usd_context.get_stage()
         if not stage or self.current_path == "":
@@ -1161,7 +1161,7 @@ def on_build(self):
   ...
   ```
 
-# Step 12: Moving the Text with the Primitive
+# Step 12: Moving the Text with the prim
 
 In the viewport of `Omniverse Code`, the text does not follow our object despite positioning the label at the top center of the bounding box of the object. The text also remains in the viewport even when the object is no longer selected. In this final step we will be guiding you to cleaning up these issues.
 
@@ -1412,6 +1412,6 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
 # Congratulations! 
 
-Your viewport should now display the object info above the selected object and move with the primitive in the scene. You have successfully created the Object Info Extension!
+Your viewport should now display the object info above the selected object and move with the prim in the scene. You have successfully created the Object Info Extension!
 
 ![](./Images/objectinfo_finished.gif)
