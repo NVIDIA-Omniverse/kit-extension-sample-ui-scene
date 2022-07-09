@@ -1,4 +1,5 @@
-# Overview
+# Light Manipulator (omni.example.ui_scene.light_manipulator)
+##  Overview
 We provide an End-to-End example of a light manipulator extension, which adds manipulators to RectLight.
 
 There are 6 types of lights in Omniverse, shown in the image below. Here is the link of how to add a light: https://www.youtube.com/watch?v=c7qyI8pZvF4. In this example, we only create manipulators to RectLight.
@@ -9,7 +10,7 @@ It contains the LightModel which stores the light attribute values. Focused on "
 
 LightManipulator defines 4 types of manipulators which separately control the light's width, height, intensity and all of the three.
 
-###[Tutorial](../tutorial/tutorial.md)
+## [Tutorial](../tutorial/tutorial.md)
 
 Follow this [step-by-step guide](../tutorial/tutorial.md) to learn how this extension was created.
 
@@ -57,7 +58,7 @@ We use `Tf.Notice` to watch the rectLight and update the model. The model itself
 For width, height and intensity, the model demonstrates two strategies working with the data.
 It keeps the attribute data during the manipulating, so that the manipulator has the only one truth of data from the model. When the manipulator requests the attributes from the model, the model computes the position using USD API and returns it to the manipulator.
 
-# Overlaying with the viewport
+## Overlaying with the viewport
 
 We use `sc.Manipulator` to draw the manipulator in 3D view. To show it in the viewport, we overlay `sc.SceneView` with our `sc.Manipulator`
 on top of the viewport window.

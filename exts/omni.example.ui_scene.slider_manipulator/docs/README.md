@@ -1,4 +1,4 @@
-# Omni.Ui_Scene.slider_manipulator 
+# Slider Manipulator (omni.example.ui_scene.slider_manipulator)
 ![](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/raw/main/exts/omni.example.ui_scene.slider_manipulator/data/preview.png)
 
 ## Overview
@@ -55,7 +55,4 @@ In the tutorial you will learn how to create an extension from the Extension Man
 
 Once the extension is enabled in the `Extension Manager`, go to your `Viewport` and right-click to create a primitive - such as a cube, sphere, cyclinder, etc. Then, left-click/select the primitive to view and manipulate the slider.
 ​
-
-## Contributing
-The source code for this repository is provided as-is and we are not accepting outside contributions.
 

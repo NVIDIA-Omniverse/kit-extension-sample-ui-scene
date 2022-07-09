@@ -1,4 +1,4 @@
-# Omni.Ui_Scene.Object_Info 
+# Object Info (omni.example.ui_scene.object_info) 
 
 ![](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/raw/main/exts/omni.example.ui_scene.object_info/Tutorial/Images/objectinfo_finished.gif)
 ​
@@ -17,7 +17,3 @@ In the tutorial you will learn how to create an extension from the Extension Man
 
 Once the extension is enabled in the `Extension Manager`, go to your `Viewport` and right-click to create a primitive - such as a cube, sphere, cyclinder, etc. Then, left-click/select the primitive to view the Object Info. 
 ​
-
-
-## Contributing
-The source code for this repository is provided as-is and we are not accepting outside contributions.
