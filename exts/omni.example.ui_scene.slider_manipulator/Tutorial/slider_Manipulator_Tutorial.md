@@ -14,19 +14,19 @@ In this guide you will learn how to draw a 3D slider in the viewport that overla
  - Create a working scale slider
 
  
- # Prereqs
- To help understand the concepts used in this guide, it is recommended that you compelte the following:
+ # Prerequisites
+ To help understand the concepts used in this guide, it is recommended that you complete the following:
 
 - [Extension Environment Tutorial](https://github.com/NVIDIA-Omniverse/ExtensionEnvironmentTutorial)
 - [Spawning Prims Tutorial](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims)
 - [Display Object Info Tutorial](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/tree/main/exts/omni.example.ui_scene.object_info)
 
-:exclamation: <span style="color:red"><b>WARNING:</b> Check that Viewport Utility Extension is turned ON in the extension manager: </span>
+:exclamation: <span style="color:red"><b>WARNING:</b> Check that Viewport Utility Extension is turned ON in the Extensions Manager: </span>
 
 ![](./Images/viewportUtilOn.PNG)
 # Step 1: Create the extension
 
-In this section, you will walk you through how to create a new extension in Omniverse Code.
+In this section, you will create a new extension in Omniverse Code.
 
 ## Step 1.1: Create new extension template
 
@@ -46,7 +46,7 @@ In the extension manager, you may have noticed that each extension has a title a
 
 ![](./Images/extensionManager_example.PNG)
 
-You can change this in the `extension.toml` file by navigating to `VS Code` and editing the file there. It is important that you give our extension a detailed title and summary for the end user to understand what our extension will accomplish or display. Here is how you changed it for this guide:
+You can change this in the `extension.toml` file by navigating to `VS Code` and editing the file there. It is important that you give your extension a detailed title and summary for the end user to understand what your extension will accomplish or display. Here is how to change it for this guide:
 
 ```python
 # The title and description fields are primarily for displaying extension info in UI
@@ -55,13 +55,13 @@ description="Interactive example of the slider manipulator with omni.ui.scene"
 ```
 ## Step 2: Model module
 
-In this step you will be creating the `slider_model.py` module where you will be tracking the current selected prim, calling the stage event, and getting the position directly from USD.
+In this step you will be creating the `slider_model.py` module where you will be tracking the current selected prim, listening to stage events, and getting the position directly from USD.
 
 This module will be made up of many lines so be sure to review the <b>":memo:Code Checkpoint"</b> for updated code of the module at various steps.
 
 ### Step 2.1: Import omni.ui and USD
 
-After creating `slider_model.py` in the same folder as `extension.py`, import the omni.ui and the necessary USD, as follows:
+After creating `slider_model.py` in the same folder as `extension.py`, import `scene` from `omni.ui` and the necessary USD modules, as follows:
 
 ```python
 from omni.ui import scene as sc
@@ -72,9 +72,9 @@ from pxr import UsdGeom
 import omni.usd
 ```
 
-### Step 2.2: Model and Position Item Class
+### Step 2.2: `SliderModel` and `PositionItem` Classes
 
-Next, let's set up our Model class and Position Item class. The Model class tracks the positon and scale of the selected object and because you will be obtaining the position directly from USD, the Position Item class doesn't contain anything.
+Next, let's set up your `SliderModel` and `PositionItem` classes. `SliderModel` tracks the position and scale of the selected prim and `PositionItem` stores the position value.
 
 ```python
 from omni.ui import scene as sc
@@ -108,7 +108,7 @@ class SliderModel(sc.AbstractManipulatorModel):
 ```
 
 ## Step 2.3: Current Selection and Tracking Selection
-In this section, you will be setting the variables for the current selection and tracking the selected, where you will also set parameters for the stage event later on. 
+In this section, you will be setting the variables for the current selection and tracking the selected prim, where you will also set parameters for the stage event later on. 
 
 ```python
 ...
@@ -152,7 +152,7 @@ class SliderModel(sc.AbstractManipulatorModel):
 >:memo: Code Checkpoint
 
 <details>
-<summary> Click here for the updated SliderModel </summary>
+<summary> Click here for the updated <b>SliderModel</b> </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -199,8 +199,8 @@ class SliderModel(sc.AbstractManipulatorModel):
 
 </details>
 
-## Step 2.4: Set the Stage
-With our selection variables set, you now need to call the `Stage` and  `Stage Event` then grab reference to the path of the prims. You will start a new function for these below our previous code:
+## Step 2.4: Define `on_stage_event()`
+With your selection variables set, you now define the `on_stage_event()` call back to get the selected prim and its position on selection changes. You will start the new function for these below module previous code:
 
 ```python
 ...
@@ -235,7 +235,7 @@ With our selection variables set, you now need to call the `Stage` and  `Stage E
 >:memo: Code Checkpoint
 
 <details>
-<summary> Click here for the updated SliderModel </summary>
+<summary> Click here for the updated <b>SliderModel</b> </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -308,8 +308,8 @@ class SliderModel(sc.AbstractManipulatorModel):
 
 <br>
 
-## Step 2.5: `Tf.Notice` function
-In the previous step, you created a Tf.Notice to update the position. [Click here for more information on Tf.Notice.](https://graphics.pixar.com/usd/dev/api/page_tf__notification.html) Now, you will define the function for what happens when Tf.Notice is called. You can add that as follows:
+## Step 2.5: `Tf.Notice` callback
+In the previous step, you registered a callback to be called when objects in the stage change. [Click here for more information on Tf.Notice.](https://graphics.pixar.com/usd/dev/api/page_tf__notification.html) Now, you will define the callback function. You want to update the stored position of the selected prim. You can add that as follows:
 
 ```python
 ...
@@ -321,8 +321,8 @@ In the previous step, you created a Tf.Notice to update the position. [Click her
                 self._item_changed(self.position)    
 ```
 
-## Step 2.6: Set the Position Identifier and Request Position
-Let's define the identifier for Position like so:
+## Step 2.6: Set the Position Identifier and return Position
+Let's define the identifier for position like so:
 
 ```python
 ...
@@ -332,7 +332,7 @@ Let's define the identifier for Position like so:
             return self.position
 ```
 
-And now, you will set item to request the position and get the value from the item:
+And now, you will set item to return the position and get the value from the item:
 
 ```python
 ...
@@ -350,7 +350,7 @@ And now, you will set item to request the position and get the value from the it
 >:memo: Code Checkpoint
 
 <details>
-<summary> Click here for the updated SliderModel </summary>
+<summary> Click here for the updated <b>SliderModel</b> </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -441,7 +441,7 @@ class SliderModel(sc.AbstractManipulatorModel):
 </details>
 
 ### Step 2.7: Position from USD
-In this last section of the Model module, you will be defining `get_position` to get position directly from USD, like so:
+In this last section of `slider_model.py`, you will be defining `get_position` to compute position directly from USD, like so:
 
 ```python
 ...
@@ -468,7 +468,7 @@ In this last section of the Model module, you will be defining `get_position` to
 >:memo: Code Checkpoint
 
 <details>
-<summary> Click here for the full Model module </summary>
+<summary> Click here for the full <b>slider_model.py</b> </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -579,11 +579,11 @@ class SliderModel(sc.AbstractManipulatorModel):
 
 ## Step 3: Manipulator Module
 
-In this step, you will be creating `slide_manipulator.py` in the same folder as our Model module. The Manipulator class will define the `on_build` function as well as create the Label and regenerate the model.
+In this step, you will be creating `slider_manipulator.py` in the same folder as `slider_model.py`. The Manipulator class will define `on_build()` as well as create the `Label` and regenerate the model.
 
 
 ### Step 3.1: Import omni.ui
-After creating the Manipulator module, import omni.ui as follows:
+After creating `slider_manipulator.py`, import `omni.ui` as follows:
 
 ```python
 from omni.ui import scene as sc
@@ -591,8 +591,8 @@ from omni.ui import color as cl
 import omni.ui as ui
 ```
 
-### Step 3.2: Create Manipulator class
-Now, you will begin the SliderManipulator class and insert the init method:
+### Step 3.2: Create `SliderManipulator` class
+Now, you will begin the `SliderManipulator` class and define the `__init__()`:
 
 ```python
 from omni.ui import scene as sc
@@ -606,8 +606,8 @@ class SliderManipulator(sc.Manipulator):
         super().__init__(**kwargs)
 ```
 
-### Step 3.3: Call on_build and create the Label
-The `on_build` function is called when the model is changed and it will then rebuild the slider. You will also create the `Label` for the slider and position it more towards the top of the screen.
+### Step 3.3: Define `on_build()` and create the `Label`
+`on_build()` is called when the model is changed and it will rebuild the slider. You will also create the `Label` for the slider and position it more towards the top of the screen.
 
 ```python
 ...
@@ -636,7 +636,7 @@ The `on_build` function is called when the model is changed and it will then reb
 ```
 
 ### Step 3.4: Regenerate the Manipulator
-Finally, let's define `on_model_updated` to regenerate the manipulator:
+Finally, let's define `on_model_updated()` to regenerate the manipulator:
 
 ```python
 ...
@@ -647,7 +647,7 @@ Finally, let's define `on_model_updated` to regenerate the manipulator:
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the full Manipulator module </summary>
+<summary>Click here for the full <b>slider_manipulator.py</b> </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -693,11 +693,11 @@ class SliderManipulator(sc.Manipulator):
 
 ## Step 4: Registry Module
 
-In this step, you will create `slider_registry.py` in the same location as the Model and Manipulator modules. You will use the registry module to have the number display on the screen when the prim is selected..
+In this step, you will create `slider_registry.py` in the same location as the `slider_manipulator.py`. You will use `slider_registry.py` to have the number display on the screen when the prim is selected.
 
 ### Step 4.1: Import from Model and Manipulator
 
-After creating the registry module, import from the Model and Manipulator, as well as `import typing` to help make the module more readable, like so:
+After creating `slider_registry.py`, import from the `SliderModel` and `SliderManipulator`, as well as `import typing` for type hinting, like so:
 
 ```python
 from .slider_model import SliderModel
@@ -709,7 +709,7 @@ from typing import Optional
 
 ### Step 4.2: Disable Selection in Viewport Legacy
 
-Our first class will address disabling the selection in the viewport legacy but you may encounter a bug that will not set our focused window to `True`. As a result, you will operate all `Viewport` Instances for a given usd_context instead:
+Your first class will address disabling the selection in viewport legacy but you may encounter a bug that will not set your focused window to `True`. As a result, you will operate all `Viewport` instances for a given usd_context instead:
 
 ```python
 ...
@@ -722,7 +722,7 @@ class ViewportLegacyDisableSelection:
         focused_windows = []
         try:
             # For some reason is_focused may return False, when a Window is definitely in fact the focused window!
-            # And there's no good solution to this when mutliple Viewport-1 instances are open; so you just have to
+            # And there's no good solution to this when multiple Viewport-1 instances are open; so you just have to
             # operate on all Viewports for a given usd_context.
             import omni.kit.viewport_legacy as vp
 
@@ -742,9 +742,9 @@ class ViewportLegacyDisableSelection:
 
 ```
 
-### Step 4.3: Slider Changed Gesture Class
+### Step 4.3: `SliderChangedGesture` Class
 
-Under our previously made Viewport class, you will define `SliderChangedGesture` class. In this class you will start with our init method and then define `on_began`, which will disable the selection rect when the user drags the slider:
+Under your previously defined `ViewportLegacyDisableSelection` class, you will define `SliderChangedGesture` class. In this class you will start with `__init__()` and then define `on_began()`, which will disable the selection rect when the user drags the slider:
 
 ```python
 
@@ -758,27 +758,27 @@ class SliderChangedGesture(SliderManipulator.SliderChangedGesture):
         self.__disable_selection = ViewportLegacyDisableSelection()
 ```
 
-Next in this class, you will define `on_changed`, which will be called when the user moves the slider. This will update the mesh as the scale of the model is changed. You will also define `on_ended` to re-enable the selection rect when the slider is not being dragged. 
+Next in this class, you will define `on_changed()`, which will be called when the user moves the slider. This will update the mesh as the scale of the model is changed. You will also define `on_ended()` to re-enable the selection rect when the slider is not being dragged. 
 
 ```python
-    def on_changed(self):
-        """Called when the user moved the slider"""
-        if not hasattr(self.gesture_payload, "slider_value"):
-            return
-        # The current slider value is in the payload.
-        slider_value = self.gesture_payload.slider_value
-        # Change the model. Slider watches it and it will update the mesh.
-        self.sender.model.set_floats(self.sender.model.get_item("value"), [slider_value])
-        
-    def on_ended(self):
-        # This re-enables the selection in the Viewport Legacy
-        self.__disable_selection = None
+def on_changed(self):
+    """Called when the user moved the slider"""
+    if not hasattr(self.gesture_payload, "slider_value"):
+        return
+    # The current slider value is in the payload.
+    slider_value = self.gesture_payload.slider_value
+    # Change the model. Slider watches it and it will update the mesh.
+    self.sender.model.set_floats(self.sender.model.get_item("value"), [slider_value])
+    
+def on_ended(self):
+    # This re-enables the selection in the Viewport Legacy
+    self.__disable_selection = None
 ```
 
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the Registry module up to this point</summary>
+<summary>Click here for <b>slider_registry.py</b> up to this point</summary>
 
 ```python
 from .slider_model import SliderModel
@@ -796,7 +796,7 @@ class ViewportLegacyDisableSelection:
         focused_windows = []
         try:
             # For some reason is_focused may return False, when a Window is definitely in fact the focused window!
-            # And there's no good solution to this when mutliple Viewport-1 instances are open; so we just have to
+            # And there's no good solution to this when multiple Viewport-1 instances are open; so you just have to
             # operate on all Viewports for a given usd_context.
             import omni.kit.viewport_legacy as vp
 
@@ -820,7 +820,7 @@ class SliderChangedGesture(SliderManipulator.SliderChangedGesture):
         super().__init__(**kwargs)
 
     def on_began(self):
-        # When the user drags the slider, we don't want to see the selection rect
+        # When the user drags the slider, you don't want to see the selection rect
         self.__disable_selection = ViewportLegacyDisableSelection()
 
     def on_changed(self):
@@ -839,11 +839,11 @@ class SliderChangedGesture(SliderManipulator.SliderChangedGesture):
 
 </details>
 
-### Step 4.4: Slider Registry Class
+### Step 4.4: `SliderRegistry` Class
 
-Now create `SliderRegistry` Class after your previous functions. 
+Now create `SliderRegistry` class after your previous functions. 
 
-This class is created by `omni.kit.viewport.registry` or `omni.kit.manipulator.viewport` per viewport and will keep the manipulator and some other properties that are needed in the viewport. You will set the `SliderRegistry` class after the class you made in the previous step. Included in this class are the init methods for your manipulator and some `Getters` and `Setters`:
+This class is created by `omni.kit.viewport.registry` or `omni.kit.manipulator.viewport` per viewport and will keep the manipulator and some other properties that are needed in the viewport. You will set the `SliderRegistry` class after the class you made in the previous step. Included in this class are the `__init__()` methods for your manipulator and some getters and setters:
 
 ```python
 ...
@@ -883,7 +883,7 @@ class SliderRegistry:
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the full Registry module  </summary>
+<summary>Click here for the full <b>slider_registry.py</b> </summary>
 
 ```python
 from .slider_model import SliderModel
@@ -925,7 +925,7 @@ class SliderChangedGesture(SliderManipulator.SliderChangedGesture):
         super().__init__(**kwargs)
 
     def on_began(self):
-        # When the user drags the slider, we don't want to see the selection rect
+        # When the user drags the slider, you don't want to see the selection rect
         self.__disable_selection = ViewportLegacyDisableSelection()
 
     def on_changed(self):
@@ -979,13 +979,13 @@ class SliderRegistry:
 <br>
 <br>
 
-## Step 5: Update extension.py
+## Step 5: Update `extension.py`
 
-You still have the default code in `extension.py` so now you will update the code to reflect the the modules you made. You can locate the `extension.py` module in the `exts` folder hierarchy where you created Model and Manipulator.
+You still have the default code in `extension.py` so now you will update the code to reflect the the modules you made. You can locate the `extension.py` in the `exts` folder hierarchy where you created `slider_model.py` and `slider_manipulator.py`.
 
-### Step 5.1: Import Omniverse Viewport Library and Registry Module
+### Step 5.1: New `extension.py` Imports
 
-Let's begin by updating the imports at the top of `extension.py` to include the Omniverse Viewport Library and the new Registry module so that you can reference it later on:
+Let's begin by updating the imports at the top of `extension.py` to include `ManipulatorFactory`, `RegisterScene`, and `SliderRegistry` so that you can use them later on:
 
 ```python
 import omni.ext
@@ -1032,7 +1032,7 @@ Now, you need to properly shutdown the extension. Let's remove the print stateme
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the full extension module</summary>
+<summary>Click here for the full <b>extension.py</b></summary>
 
 ```python
 import omni.ext
@@ -1067,7 +1067,7 @@ Now that you have all of the variables and necessary properties referenced, let'
 
 ### Step 6.1: Geometry Properties
 
-You are going to begin by adding new geometry to `slider_manipulator.py`. You will set the geometry properties in our `init method` like so:
+You are going to begin by adding new geometry to `slider_manipulator.py`. You will set the geometry properties in the `__init__()` like so:
 
 ```python
 from omni.ui import scene as sc
@@ -1090,7 +1090,7 @@ class SliderManipulator(sc.Manipulator):
 
 ### Step 6.2: Create the line
 
-Next, you will create a line above the selected prim. Let's add this to `on_build`:
+Next, you will create a line above the selected prim. Let's add this to `on_build()`:
 
 ```python
 ...
@@ -1133,7 +1133,7 @@ This should be the result in your viewport:
 
 ### Step 6.3: Create the circle
 
-You are still working in `slider_manipulator.py` and now you will be adding the circle on the line for the slider. This will also be added to `on_build` like so:
+You are still working in `slider_manipulator.py` and now you will be adding the circle on the line for the slider. This will also be added to `on_build()` like so:
 
 ```python
 ...
@@ -1171,7 +1171,7 @@ Now, your line in your viewport should look like this:
 ![](./Images/step6CircleResult.png)
 
 <details>
-<summary>Click here for the full Manipulator module</summary>
+<summary>Click here for the full <b>slider_manipulatory.py</b></summary>
 
 ```python
 from omni.ui import scene as sc
@@ -1232,13 +1232,13 @@ class SliderManipulator(sc.Manipulator):
 
 ## Step 7: Set up the Model
 
-  For this step, you will need to set up the slider Model class to hold the information you need for the size of the selected prim. You will later use this information to connect it to the Manipulator. 
+For this step, you will need to set up `SliderModel` to hold the information you need for the size of the selected prim. You will later use this information to connect it to the Manipulator. 
 
 ### Step 7.1: Import Omniverse Command Library
 
-   First, let's start by importing the Omniverse Command Library to `slider_model.py`
+First, let's start by importing the Omniverse Command Library in `slider_model.py`
 
-   ```python
+```python
 from omni.ui import scene as sc
 from pxr import Tf
 from pxr import Gf
@@ -1248,7 +1248,7 @@ import omni.usd
 # NEW IMPORT
 import omni.kit.commands
 # END NEW 
-   ```
+```
 
 ### Step 7.2: ValueItem Class
 
@@ -1307,7 +1307,7 @@ You will use this new class to create the variables for the min and max of the s
 
 ### Step 7.3: Set Scale to Stage
 
-With the new variables for the scale, let's define them in `on_stage_event` like so:
+With the new variables for the scale, populate them in `on_stage_event()` like so:
 
 ```python
 ...
@@ -1351,7 +1351,7 @@ With the new variables for the scale, let's define them in `on_stage_event` like
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the updated Model module at this point </summary>
+<summary>Click here for the updated <b>slider_model.py</b> at this point </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -1503,7 +1503,7 @@ Just as you defined the identifier for position, you must do the same for value,
 
 ### Step 7.5: Set Floats
 
-Previously, you made a call to `set_floats`, now let's create this pass after the `get_item` function. In this function, you will set the scale when setting the value, set directly to the item, and update the manipulator:
+Previously, you called `set_floats()`, now define it after `get_item()`. In this function, you will set the scale when setting the value, set directly to the item, and update the manipulator:
 
 ```python
     def set_floats(self, item, value):
@@ -1534,7 +1534,7 @@ Previously, you made a call to `set_floats`, now let's create this pass after th
 ```
 
 <details>
-<summary>Click here for the full Model module  </summary>
+<summary>Click here for the full <b>slider_model.py</b>  </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -1701,11 +1701,11 @@ class SliderModel(sc.AbstractManipulatorModel):
 
 ## Step 8: Add Gestures
 
-For our final step, you will be updating `slider_manipulator.py` to add the gestures needed to connect what you programmed in the Model. This will include checking that the gesture is not prevented during drag, calling the gesture, restructure the geometry properties, and update the Line and Circle.
+For your final step, you will be updating `slider_manipulator.py` to add the gestures needed to connect what you programmed in the Model. This will include checking that the gesture is not prevented during drag, calling the gesture, restructure the geometry properties, and update the Line and Circle.
 
-### Step 8.1: SliderDragGesturePayload Class
+### Step 8.1: `SliderDragGesturePayload` Class
 
-Let's begin by creating a new class that the user will access to get the current value of the slider, like so:
+Begin by creating a new class that the user will access to get the current value of the slider, like so:
 
 ```python
 from omni.ui import scene as sc
@@ -1730,9 +1730,9 @@ class SliderManipulator(sc.Manipulator):
     ...
 ```
 
-### Step 8.2 SliderChangedGesture Class
+### Step 8.2 `SliderChangedGesture` Class
 
-Next, you will create another new class that the user will reimplement to process the manipulator's callbacks, in addition to a new init method:
+Next, you will create another new class that the user will reimplement to process the manipulator's callbacks, in addition to a new `__init__()`:
 
 ```python
 ...
@@ -1769,7 +1769,7 @@ class SliderManipulator(sc.Manipulator):
 ...
 ```
 
-Nested inside of the `SliderChangedGesture` class, let's define a process function and place it directly after the init method of this class:
+Nested inside of the `SliderChangedGesture` class, define `process()` directly after the `__init__()` definition of this class:
 
 ```python
 ...
@@ -1803,7 +1803,7 @@ Nested inside of the `SliderChangedGesture` class, let's define a process functi
 ```
 >:memo:Code Checkpoint
 <details>
-<summary>Click here for the updated Manipulator module at this point </summary>
+<summary>Click here for the updated <b>slider_manipulator.py</b> at this point </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -1888,7 +1888,7 @@ class SliderManipulator(sc.Manipulator):
 
 </details>
 
-Now, you need to pass through a few of the Public API functions after the `process` function:
+Now, you need to define a few of the Public API functions after the `process` function:
 
 ```python
         def process(self):
@@ -1915,9 +1915,9 @@ Now, you need to pass through a few of the Public API functions after the `proce
 
 ```
 
-### Step 8.3 _ArcGesturePriorities Class
+### Step 8.3 `_ArcGesturePrioritize` Class
 
-You will be adding an `_ArcGesture` class in the next step that needs the manager `_ArcGesturePrioritize` to make it the priority gesture. You will add the manager first to make sure the drag of the slider is not prevented during drag. You will slot this new class after our Public API functions:
+You will be adding an `_ArcGesture` class in the next step that needs the manager `_ArcGesturePrioritize` to make it the priority gesture. You will add the manager first to make sure the drag of the slider is not prevented during drag. You will slot this new class after your Public API functions:
 
 
 ```python
@@ -1948,9 +1948,9 @@ You will be adding an `_ArcGesture` class in the next step that needs the manage
 # END NEW
 ```
 
-### Step 8.4: _ArcGesture Class
+### Step 8.4: `_ArcGesture` Class
 
-Now, let's create the class `_ArcGesture` where you will set the new slider value and redirect to `SliderChangedGesture` class you made previously. This new class will be after the `ArcGesturePrioritize` manager class. 
+Now, create the class `_ArcGesture` where you will set the new slider value and redirect to `SliderChangedGesture` class you made previously. This new class will be after the `ArcGesturePrioritize` manager class. 
 
 ```python
 
@@ -2006,7 +2006,7 @@ Now, let's create the class `_ArcGesture` where you will set the new slider valu
 
 >:memo:Code Checkpoint
 <details>
-<summary>Click here for the updated Manipulator module at this point </summary>
+<summary>Click here for the updated <b>slider_manipulator.py</b> at this point </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -2150,11 +2150,11 @@ class SliderManipulator(sc.Manipulator):
 
 ### Step 8.5: Restructure Geometry Parameters
 
-For this step, you will be adding to init method that nests our Geometry properties, such as `width`,`thickness`,`radius`, and `radius_hovered`. 
+For this step, you will be adding to `__init__()` that nests your Geometry properties, such as `width`,`thickness`,`radius`, and `radius_hovered`. 
 
->:bulb: Tip: If you are having trouble locating the geometry properties, be reminded that this init method is after the new classes you added in the previous steps. You should find it under "_ArcGesture"
+>:bulb: Tip: If you are having trouble locating the geometry properties, be reminded that this `__init__()` is after the new classes you added in the previous steps. You should find it under "_ArcGesture"
 
-Let's start by defining `set_radius` for the circle so that you can change it on hover later, and also set the parameters for arc_gesture to make sure it's active when the object is recreated:
+Start by defining `set_radius()` for the circle so that you can change it on hover later, and also set the parameters for arc_gesture to make sure it's active when the object is recreated:
 
 ```python
     def __init__(self, **kwargs):
@@ -2177,7 +2177,7 @@ Let's start by defining `set_radius` for the circle so that you can change it on
 
 ### Step 8.6: Add Hover Gestures
 
-Now that you have set the geometry properties for when you hover over them, let's create the `HoverGesture`. You will set this as an `if` statement under the parameters for `arc_gesture`:
+Now that you have set the geometry properties for when you hover over them, create the `HoverGesture` instance. You will set this within an `if` statement under the parameters for `self._arc_gesture`:
 
 ```python
         # You don't recreate the gesture to make sure it's active when the
@@ -2197,7 +2197,7 @@ Now that you have set the geometry properties for when you hover over them, let'
 
 ## Step 8.7: UI Getters and Setters
 
-Before moving on, you need to add a few Python decoraters for the UI, such as `@property`,`@width-setter` and `@height-setter`. These can be added after the `HoverGesture` statement from the step above:
+Before moving on, you need to add a few Python decorators for the UI, such as `@property`,`@width.setter` and `@height.setter`. These can be added after the `HoverGesture` statement from the step above:
 
 ```python
     def destroy(self):
@@ -2227,7 +2227,7 @@ Before moving on, you need to add a few Python decoraters for the UI, such as `@
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the updated Manipulator module at this point</summary>
+<summary>Click here for the updated <b>slider_manipulator.py</b> at this point</summary>
 
 ```python
 from omni.ui import scene as sc
@@ -2407,11 +2407,11 @@ class SliderManipulator(sc.Manipulator):
 
 </details>
 
-### Step 8.8: Update on_build
+### Step 8.8: Update `on_build()`
 
-For our final step in the Manipulator module, you will update the `on_build` function to update the min and max values of the model, update the line and circle, and update the label.
+For your final step in the Manipulator module, you will update `on_build()` to update the min and max values of the model, update the line and circle, and update the label.
 
-Let's start with replacing the `value` variable you had before with a new set of parameters for `min`,`max`, new `value`, and `value_normalized`.
+Start with replacing the `value` variable you had before with a new set of variables for `_min`,`_max`, new `value`, and `value_normalized`.
 
 ```python
     def on_build(self):
@@ -2438,9 +2438,9 @@ Let's start with replacing the `value` variable you had before with a new set of
 
 ```
 
-Now, you will add a new line to the slider so that you have a line for when the slider is moved to the left and to the right. Locate just below our previously set parameters the `Left Line` you created in `Step 6.2`. 
+Now, you will add a new line to the slider so that you have a line for when the slider is moved to the left and to the right. Locate just below your previously set parameters the `Left Line` you created in `Step 6.2`. 
 
-Before you add the new line, replace the `1` in `line_to` with our new parameter `value_normalized`.
+Before you add the new line, replace the `1` in `line_to` with your new parameter `value_normalized`.
 
 Then add the `Right Line` below the `Left Line`, as so:
 
@@ -2461,7 +2461,7 @@ Then add the `Right Line` below the `Left Line`, as so:
             # END NEW
 ```
 
-Next, let's update the circle to add the `hover_gesture`. This will increase the circle in size when hovered over. Let's also change the `1` value like you did for `Line` to `value_normalized` and also add the gesture to `sc.Arc`:
+Next, update the circle to add the `hover_gesture`. This will increase the circle in size when hovered over. Also change the `1` value like you did for `Line` to `value_normalized` and also add the gesture to `sc.Arc`:
 
 ```python
             # Circle
@@ -2481,7 +2481,7 @@ Next, let's update the circle to add the `hover_gesture`. This will increase the
                  # END NEW
 ```
 
-Last of all, let's update the `Label` below our circle to add more space between the slider and the label:
+Last of all, update the `Label` below your circle to add more space between the slider and the label:
 
 ```python
             with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
@@ -2498,7 +2498,7 @@ Last of all, let's update the `Label` below our circle to add more space between
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the full Manipulator module</summary>
+<summary>Click here for the full <b>slider_manipulator.py</b></summary>
 
 ```python
 from omni.ui import scene as sc

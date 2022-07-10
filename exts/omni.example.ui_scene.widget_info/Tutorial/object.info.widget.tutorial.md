@@ -615,7 +615,7 @@ Define this function after `on_model_updated` and name it `update_scale`.
  ```
 
  <details>
- <summary>Click here for the updated `widget_info_manipulator.py` module  </summary>
+ <summary>Click here for the updated <b>widget_info_manipulator.py</b> module  </summary>
 
 ```python
 from omni.ui import scene as sc
