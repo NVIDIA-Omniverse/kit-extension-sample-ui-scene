@@ -53,11 +53,11 @@ You can change this in the `extension.toml` file by navigating to `VS Code` and 
 title = "UI Scene Slider Manipulator"
 description="Interactive example of the slider manipulator with omni.ui.scene"
 ```
-## Step 2: Model script
+## Step 2: Model module
 
-In this step you will be creating the `slider_model.py` script where you will be tracking the current selected prim, calling the stage event, and getting the position directly from USD.
+In this step you will be creating the `slider_model.py` module where you will be tracking the current selected prim, calling the stage event, and getting the position directly from USD.
 
-This script will be made up of many lines so be sure to review the <b>":memo:Code Checkpoint"</b> for updated modules of the script at various steps.
+This module will be made up of many lines so be sure to review the <b>":memo:Code Checkpoint"</b> for updated code of the module at various steps.
 
 ### Step 2.1: Import omni.ui and USD
 
@@ -441,7 +441,7 @@ class SliderModel(sc.AbstractManipulatorModel):
 </details>
 
 ### Step 2.7: Position from USD
-In this last section of the Model script, you will be defining `get_position` to get position directly from USD, like so:
+In this last section of the Model module, you will be defining `get_position` to get position directly from USD, like so:
 
 ```python
 ...
@@ -468,7 +468,7 @@ In this last section of the Model script, you will be defining `get_position` to
 >:memo: Code Checkpoint
 
 <details>
-<summary> Click here for the full Model script </summary>
+<summary> Click here for the full Model module </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -577,13 +577,13 @@ class SliderModel(sc.AbstractManipulatorModel):
 
 </details>
 
-## Step 3: Manipulator Script
+## Step 3: Manipulator Module
 
-In this step, you will be creating `slide_manipulator.py` in the same folder as our Model script. The Manipulator class will define the `on_build` function as well as create the Label and regenerate the model.
+In this step, you will be creating `slide_manipulator.py` in the same folder as our Model module. The Manipulator class will define the `on_build` function as well as create the Label and regenerate the model.
 
 
 ### Step 3.1: Import omni.ui
-After creating the Manipulator script, import omni.ui as follows:
+After creating the Manipulator module, import omni.ui as follows:
 
 ```python
 from omni.ui import scene as sc
@@ -647,7 +647,7 @@ Finally, let's define `on_model_updated` to regenerate the manipulator:
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the full Manipulator script </summary>
+<summary>Click here for the full Manipulator module </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -691,13 +691,13 @@ class SliderManipulator(sc.Manipulator):
 <br>
 <br>
 
-## Step 4: Registry Script
+## Step 4: Registry Module
 
-In this step, you will create `slider_registry.py` in the same location as the Model and Manipulator modules. You will use the registry script to have the number display on the screen when the prim is selected..
+In this step, you will create `slider_registry.py` in the same location as the Model and Manipulator modules. You will use the registry module to have the number display on the screen when the prim is selected..
 
 ### Step 4.1: Import from Model and Manipulator
 
-After creating the registry script, import from the Model and Manipulator, as well as `import typing` to help make the script more readable, like so:
+After creating the registry module, import from the Model and Manipulator, as well as `import typing` to help make the module more readable, like so:
 
 ```python
 from .slider_model import SliderModel
@@ -778,7 +778,7 @@ Next in this class, you will define `on_changed`, which will be called when the 
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the Registry script up to this point</summary>
+<summary>Click here for the Registry module up to this point</summary>
 
 ```python
 from .slider_model import SliderModel
@@ -883,7 +883,7 @@ class SliderRegistry:
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the full Registry script  </summary>
+<summary>Click here for the full Registry module  </summary>
 
 ```python
 from .slider_model import SliderModel
@@ -981,11 +981,11 @@ class SliderRegistry:
 
 ## Step 5: Update extension.py
 
-You still have the default code in `extension.py` so now you will update the code to reflect the the scripts you made. You can locate the `extension.py` script in the `exts` folder hierarchy where you created Model and Manipulator.
+You still have the default code in `extension.py` so now you will update the code to reflect the the modules you made. You can locate the `extension.py` module in the `exts` folder hierarchy where you created Model and Manipulator.
 
-### Step 5.1: Import Omniverse Viewport Library and Registry Script
+### Step 5.1: Import Omniverse Viewport Library and Registry Module
 
-Let's begin by updating the imports at the top of `extension.py` to include the Omniverse Viewport Library and the new Registry script so that you can reference it later on:
+Let's begin by updating the imports at the top of `extension.py` to include the Omniverse Viewport Library and the new Registry module so that you can reference it later on:
 
 ```python
 import omni.ext
@@ -1032,7 +1032,7 @@ Now, you need to properly shutdown the extension. Let's remove the print stateme
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the full extension script</summary>
+<summary>Click here for the full extension module</summary>
 
 ```python
 import omni.ext
@@ -1090,7 +1090,7 @@ class SliderManipulator(sc.Manipulator):
 
 ### Step 6.2: Create the line
 
-Next, you will create a line above the selected primities. Let's add this to `on_build`:
+Next, you will create a line above the selected prim. Let's add this to `on_build`:
 
 ```python
 ...
@@ -1171,7 +1171,7 @@ Now, your line in your viewport should look like this:
 ![](./Images/step6CircleResult.png)
 
 <details>
-<summary>Click here for the full Manipulator script</summary>
+<summary>Click here for the full Manipulator module</summary>
 
 ```python
 from omni.ui import scene as sc
@@ -1351,7 +1351,7 @@ With the new variables for the scale, let's define them in `on_stage_event` like
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the updated Model script at this point </summary>
+<summary>Click here for the updated Model module at this point </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -1534,7 +1534,7 @@ Previously, you made a call to `set_floats`, now let's create this pass after th
 ```
 
 <details>
-<summary>Click here for the full Model script  </summary>
+<summary>Click here for the full Model module  </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -1803,7 +1803,7 @@ Nested inside of the `SliderChangedGesture` class, let's define a process functi
 ```
 >:memo:Code Checkpoint
 <details>
-<summary>Click here for the updated Manipulator script at this point </summary>
+<summary>Click here for the updated Manipulator module at this point </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -2006,7 +2006,7 @@ Now, let's create the class `_ArcGesture` where you will set the new slider valu
 
 >:memo:Code Checkpoint
 <details>
-<summary>Click here for the updated Manipulator script at this point </summary>
+<summary>Click here for the updated Manipulator module at this point </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -2227,7 +2227,7 @@ Before moving on, you need to add a few Python decoraters for the UI, such as `@
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the updated Manipulator script at this point</summary>
+<summary>Click here for the updated Manipulator module at this point</summary>
 
 ```python
 from omni.ui import scene as sc
@@ -2498,7 +2498,7 @@ Last of all, let's update the `Label` below our circle to add more space between
 >:memo: Code Checkpoint
 
 <details>
-<summary>Click here for the full Manipulator script</summary>
+<summary>Click here for the full Manipulator module</summary>
 
 ```python
 from omni.ui import scene as sc

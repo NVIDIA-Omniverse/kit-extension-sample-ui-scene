@@ -65,9 +65,9 @@ Inside of this file, there is a title and description for how the extension will
 
 ![new ui](./Images/step1.2_naming_ext_ui_update.PNG)
 
-# Step 2: Print the active viewport
+# Step 2: Get the active viewport
 
-In this section, you import a viewport utility into `extension.py`. Then, you use it to store the active viewport. Finally, you will print the name of the active viewport to the console. 
+In this section, you import `omni.kit.viewport.utility` into `extension.py`. Then, you use it to store the active viewport. Finally, you will print the name of the active viewport to the console. 
 
 ## Step 2.1: Navigate to `extension.py`
 
@@ -77,10 +77,10 @@ Navigate to `extension.py`:
  
 This module contains boilerplate code for building a new extension:
 
-![extension.py script](./Images/step2.extension_script.PNG)
+![extension.py module](./Images/step2.extension_script.PNG)
 
 
-## Step 2.2: Import the Viewport Utility
+## Step 2.2: Import the `omni.kit.viewport.utility`
 
 Import the viewport utility:
 
@@ -142,15 +142,15 @@ Here you see the result of the print statement you added in the last step.
 
   <br>
 
-## Step 2.6: Create the Object Info Model module
+## Step 2.6: Create `object_info_model.py`
 
-In this new module, you will create the necessary information for the object information to be called, such as the selected prim and tracking when the selection changes. you will also create a stage to be set later on. 
+In this new module, you will create the necessary information for the object information to be called, such as the selected prim and tracking when the selection changes.
    
 Create a file in the same file location as `extension.py` and name it `object_info_model.py`.
 
   <br>
 
-  # Step 3: Object Info Model module Code
+  # Step 3: `object_info_model.py` Code
   > **Note:** Work in the `object_info_model.py` module for this section. 
 
 <br>
@@ -246,10 +246,11 @@ It's important to include `destroy()` in the model class. You want to unsubscrib
 
 > **Note:** Work in `extension.py` for this section. 
 
-Now that you have created `object_info_model.py`, you need to do a few things in `extension.py` to reflect the object model, such as import from the model class, create a reference and the object, then destroy the model when the extension is shutdown. 
+Now that you have created `object_info_model.py`, you need to do a few things in `extension.py` use the object model, such as import the model class, create an instance when the extension startsup, and then destroy the model when the extension is shutdown. 
 
-## Step 4.1: Import extention.py
-import into `extension.py` from `object_info_model.py`:
+## Step 4.1: Import ObjInfoModel
+
+Import ObjInfoModel into `extension.py` from `object_info_model.py`:
 
 ```python
 import omni.ext
@@ -262,7 +263,7 @@ from .object_info_model import ObjInfoModel
 ...
 ```
 
-## Step 4.2: Reference the object model
+## Step 4.2: Create a variable for the object model
 Create a variable for object model in `__init()__` of the `MyExtension` Class:
 
 ```python
@@ -277,7 +278,7 @@ class MyExtension(omni.ext.IExt):
     ...
 ```
 
-## Step 4.3: Manage the object
+## Step 4.3: Manage the object model
 You should then create the object in `on_startup()` and destroy it later on in `on_shutdown()`:
 
 ```python
@@ -309,7 +310,7 @@ def on_shutdown(self):
 ```
 
 <details>
-<summary>Click here for the updated <b>extension.py</b> script  </summary>
+<summary>Click here for the updated <b>extension.py</b> module  </summary>
 
 ```python
 import omni.ext
@@ -365,15 +366,15 @@ class MyExtension(omni.ext.IExt):
 
 <br>
 
-# Step 5: Set the Stage
+# Step 5: Get the selected prim's data
 
-At this point, there is nothing viewable in Omniverse Code as you have not created a stage for the viewport to reference an event happening. In this section you will set that stage by getting a reference to the selected object's information. By the end of step 4 you should be able to view the object info in the viewport.
+At this point, there is nothing viewable in Omniverse Code as you the code is not doing anything yet when stage events occur. In this section, you will fill in the logic for the stage event callback to get the selected object's information. By the end of Step 5 you should be able to view the object info in the console.
 
 > **Note:** Work in `object_info_model.py` for this section.
 
-At this point, you have created the start of the Stage Event in `object_info_model.py` but there is nothing happening in the event. 
+At this point, you have created the start of the `on_stage_event()` callback in `object_info_model.py` but there is nothing happening in the event. 
 
-Replace what's in `on_stage_event` with the variable for the prim path and where that path information is located:
+Replace what's in `on_stage_event()` with the variable for the prim path and where that path information is located:
 
 ```python
 def on_stage_event(self, event):
@@ -397,7 +398,7 @@ You can check that this is working by navigating back to Omniverse Code and crea
 # Step 6: Object Path Name in Scene
 
 
-In this step you initialize another `__init__()` method in a new class to represent the position. This position will be taken directly from USD when requested. 
+In this step you create another `__init__()` method in a new class to represent the position. This position will be taken directly from USD when requested. 
 
 ## Step 6.1: Nest the `PositionItem` class
 Nest the new `PositionItem` class inside of the `ObjInfoModel` class as so:
@@ -421,7 +422,7 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 ```
 
 ## Step 6.2: Set path and position
-Set the current path and update the position from `[0,0,0]` to hold position of the object created:
+Set the current path and update the position from `[0,0,0]` to store a `PositionItem`:
 
 ```python
 def __init__(self) -> None:
@@ -448,7 +449,7 @@ def __init__(self) -> None:
 ```
 
 ## Step 6.3: Check the stage
-After updating the position, check the stage when the selection of an object is changed. Do this with an `"if"` statement in `on_stage_event()`, like so:
+After updating the position, check the stage when the selection of an object is changed. Do this with an `if` statement in `on_stage_event()`, like so:
 
 ```python
     def on_stage_event(self, event):
@@ -483,7 +484,7 @@ def destroy(self):
 ```
 
 <details>
-<summary>Click here for the updated <b>object_info_model.py</b> script  </summary>
+<summary>Click here for the updated <b>object_info_model.py</b> module  </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -551,12 +552,12 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
 # Step 7: The Manipulator Class
 
-In this step you will create a new script that references the manipulator class for the object info, which will be displayed in the viewport in another step ([see here for more information on the Manipulator Class in Omniverse](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html)).<br>
+In this step you will create a new module for the manipulator class for the object info, which will be displayed in the viewport in another step ([see here for more information on the Manipulator Class in Omniverse](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html)).<br>
 
 ## Step 7.1: Create `object_info_manipulator.py`
-Similar to when you created `object_info_model.py`, create a new script in the same folder and name it `object_info_manipulator.py`.
+Similar to when you created `object_info_model.py`, create a new module in the same folder and name it `object_info_manipulator.py`.
 
-The objective of this script is to grab the reference of the object model's details, such as name and path, to be displayed in the viewport through `on_build()`. This is important as it connects the nested data in `object_info_model.py`. 
+The objective of this module is to getf the object model's details, such as name and path, and display it in the viewport through using `on_build()`. This is important as it connects the nested data in `object_info_model.py`. 
 
 ## Step 7.2: Import ui
 import from omni.ui:
@@ -600,8 +601,8 @@ def on_build(self):
 ```
 This method checks if there is a selection and creates a label for the path.
 
-## Step 7.5 Clean up memory
-Before moving on from `object_info_manipulator.py`, Navigate to the end of the file and call `invalidate()`.
+## Step 7.5 Invalidate the manipulator on model update
+Before moving on from `object_info_manipulator.py`, navigate to the end of the file and call `invalidate()`.
 
 ```python
 ...
@@ -614,7 +615,7 @@ def on_model_updated(self, item):
 This method purges old memory when the model is updated. 
 
 <details>
-<summary>Click here for the full <b>object_info_manipulator.py</b> script  </summary>
+<summary>Click here for the full <b>object_info_manipulator.py</b> module  </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -652,12 +653,12 @@ class ObjInfoManipulator(sc.Manipulator):
 
 # Step 8: Displaying information in the viewport
 
-In this step, you will create a new script that references the gathered information from other scripts and calls them to display in the active viewport. 
+In this step, you will create a new module that uses the gathered information from other modules and displays them in the active viewport. 
 
 ## Step 8.1: Create new file 
-Add this script to the same folder and name it `viewport_scene.py`.
+Add this module to the same folder and name it `viewport_scene.py`.
 
-Import the scene from `omni.ui`, the object Model and object Manipulator:
+Import the `scene` from `omni.ui`, `ObjInfoModel`, and `ObjInfoManipulator`:
 
 ```python
 from omni.ui import scene as sc
@@ -668,7 +669,7 @@ from .object_info_model import ObjInfoModel
 ```
 
 ## Step 8.2 Create new class
-Create the `ViewportSceneInfo` class and initialize it with `__init__()`:
+Create the `ViewportSceneInfo` class and define the `__init__()`:
 
 ```python
 ...
@@ -725,7 +726,7 @@ def destroy(self):
 ```
 
 <details>
-<summary>Click here for the full <b>viewport_scene.py</b> script  </summary>
+<summary>Click here for the full <b>viewport_scene.py</b> module  </summary>
 
 ```python
 from omni.ui import scene as sc
@@ -771,13 +772,13 @@ class ViewportSceneInfo():
 <br>
 
 
-# Step 9: Cleaning up extension.py
+# Step 9: Cleaning up `extension.py`
 > **Note:** Work in `extension.py` for this section.
 
-Now that you've have established a Viewport, you need to clean up `extension.py` to reflect these changes. You will remove some of the references you made previously and ensure that the viewport is flushed out on shutdown.
+Now that you've have established a Viewport, you need to clean up `extension.py` to reflect these changes. You will remove some of code from previous steps and ensure that the viewport is flushed out on shutdown.
 
 ## Step 9.1: Import class
-Import `viewport_scene.py` and its' class:
+Import `ViewportSceneInfo`:
 
 ```python
 import omni.ext
@@ -786,8 +787,8 @@ from omni.kit.viewport.utility import get_active_viewport_window
 from .viewport_scene import ViewportSceneInfo
 ```
 
-## Step 9.2: Remove `object_info_model` import
-Remove the import from object_info_model as it's no longer will be used:
+## Step 9.2: Remove `ObjInfoModel`
+Remove the import from the `object_info_model` module as it will no longer be used:
 
 ```python
 # REMOVE
@@ -795,7 +796,7 @@ from .object_info_model import ObjInfoModel
 ```
 
 ## Step 9.3: Remove reference
-As you removed the import from `object_info_model.py`, remove its' reference in the `__init__()` method and replace it with the `viewport_scene`:
+As you removed the import from `ObjInfoModel` import, remove its reference in the `__init__()` method and replace it with the `viewport_scene`:
 
 ```python
 class MyExtension(omni.ext.IExt):
@@ -808,7 +809,7 @@ class MyExtension(omni.ext.IExt):
 ```
 
 ## Step 9.4: Remove start up code
-Remove the start up code where you reference to create the object and the code following it that creates the extension window and **Cick Me** button:
+Remove the start up code that constructs the `ObjInfoModel` object and the code following it that creates the extension window and **Cick Me** button:
 
 ```python
 ...
@@ -918,9 +919,9 @@ You should be able to create a prim in the viewport and view the Object Info at 
 
 # Step 10: Displaying Object Info in Local Space
 
-At this stage, the Object Info is displaying in the viewport but it is displayed in World Space. This means that regardless of where your object is located in the World, the info will always be displayed at [0,0,0]. In the next few steps you will convert this into Local Space. By the end of step 4 the Object Info should follow the object. 
+At this stage, the Object Info is displaying in the viewport but it is displayed at the origin. This means that regardless of where your object is located in the World, the info will always be displayed at [0,0,0]. In the next few steps you will convert this into Local Space. By the end of step 4 the Object Info should follow the object. 
 
-  ## Step 10.1: Import USD variables
+  ## Step 10.1: Import USD
 
   > **Note:** Work in `object_info_model.py` for this section.
 
@@ -967,7 +968,7 @@ def get_item(self, identifier):
 This function requests the position and value from the item.
 
 ## Step 10.4: Define `get_position()`:
-Although you created this new function to get the position, you've yet to define the position. The position will be defined in a new function based on the bounding box we will create for the prim. Name the new function `get_position()` and use it to get the stage:
+Although you created this new function to get the position, you've yet to define the position. The position will be defined in a new function based on the bounding box we will compute for the prim. Name the new function `get_position()` and get a reference to the stage:
 
 ```python
 ...
@@ -1126,13 +1127,13 @@ class ObjInfoModel(sc.AbstractManipulatorModel):
 
 <br>
 
-# Step 11: Updating Object Info Manipulator
+# Step 11: Updating `ObjInfoManipulator`
 
 > **Note:** You are working in `object_info_manipulator.py` for this section.
 
 In this step, you need to update the position value and to position the Object Info at the object's origin and then offset it in the up-direction. You'll also want to make sure that it is scaled properly in the viewport. 
 
-Fortunately, this does not require a big alteration to our existing code. You merely need to add onto the `on_build` function in the `object_info_manipulator.py` script:
+Fortunately, this does not require a big alteration to our existing code. You merely need to add onto the `on_build` function in the `object_info_manipulator.py` module:
 
   ```python
   ...
@@ -1159,13 +1160,13 @@ def on_build(self):
   ...
   ```
 
-# Step 12: Moving the Text with the prim
+# Step 12: Moving the Label with the prim
 
-In the viewport, the text does not follow our object despite positioning the label at the top center of the bounding box of the object. The text also remains in the viewport even when the object is no longer selected. In this final step we will be guiding you to cleaning up these issues.
+In the viewport, the text does not follow our object despite positioning the label at the top center of the bounding box of the object. The text also remains in the viewport even when the object is no longer selected. This is because we are reacting to all stage events and not only when a prim is selected. In this final step we will be guiding you to cleaning up these issues.
 
 > **Note:** Work in `object_info_model.py` for this section
 
-## 12.1: Import a `TFNotice`
+## 12.1: Import `Tf`
 Place one more import into `object_info_model.py` at the top of the file, as so:
 
 ```python
@@ -1179,10 +1180,10 @@ from omni.ui import scene as sc
 import omni.usd
 ```
 
-`tf`is of type `TFNotice` and you'll use it soon to receive notifications of any changes to the object 
+You will use `Tf` to receive notifications of any selection changes.
 
 ### 12.2: Store the stage listener 
-Add a new variable to grab the stage listener under the second `__init__()` method:
+Add a new variable to store the stage listener under the second `__init__()` method:
 
 ```python
 ...
@@ -1203,7 +1204,7 @@ def __init__(self) -> None:
 ### 12.3: Handle prim selection events 
 Now, you need to add some code to `on_stage_event()`.
 
-You need to do a few things in this function, such as checking if the `prim_path` exists, turn off the manipulator if it does not, then check if the selected item is a `prim` and remove the stage listener if not. Additionally,  notice a change with the stage listener when the object has changed.
+You need to do a few things in this function, such as checking if the `prim_path` exists, turn off the manipulator if it does not, then check if the selected item is a `UsdGeom.Imageable` and remove the stage listener if not. Additionally, notice a change with the stage listener when the selection has changed.
 
 ```python
 ...
@@ -1270,8 +1271,8 @@ def on_stage_event(self, event):
 </details>
 
 
-## 12.4: Setup multi-object selection
-In the final step, create a new function that will be called if there are multiple objects in the scene then it will loop through all objects until the selected one is found. Place this new function after `get_position()` and name it `notice_changed()`. After this, the path should follow the selected object as well as not stay in the viewport when object is deselected:
+## 12.4: Setup `notice_changed()` callback
+In the final step, create a new function that will be called when any objects change. It will loop through all changed prim paths until the selected one is found and get the latest position for the selected prim. After this, the path should follow the selected object.:
 
 ```python
 ...

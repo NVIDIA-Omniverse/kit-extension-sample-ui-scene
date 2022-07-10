@@ -51,7 +51,7 @@ Open `VS Code` directly from the `Extension Manager`
 
 ## Step 1.4: Create the Module
 
-Create a new script called `object_info_widget.py` in the `exts` hierarchy that our other modules are located in. 
+Create a new module called `object_info_widget.py` in the `exts` hierarchy that our other modules are located in. 
 
 This will be our Widget Module.
 
@@ -207,7 +207,7 @@ class WidgetInfoManipulator(sc.Manipulator):
 
 # Step 2: Update Viewport and Extension
 
-  Now that you have created a new script, it is important for us to bring this information into `viewport_scene.py` and update `extension.py` to reflect these new changes.
+  Now that you have created a new module, it is important for us to bring this information into `viewport_scene.py` and update `extension.py` to reflect these new changes.
 
   ## Step 2.1: Import Widget Info
 
@@ -309,7 +309,7 @@ class ViewportSceneInfo():
 
 ## Step 3: Update `extension.py`
 
-Now that you have created the widget and passed it into the viewport, you need to call this in the `extension.py` script for it to function.
+Now that you have created the widget and passed it into the viewport, you need to call this in the `extension.py` module for it to function.
 ### Step 3.1: Edit the Class Name
 
 Start by changing the class name of `extension.py` from `MyExtension` to something more descriptive, like `ObjectInfoWidget`:
@@ -345,7 +345,7 @@ Pass the new parameter in `on_startup` as follows:
 ```
 
 <details>
-<summary>Click here for the updated <b>extension.py</b> script </summary>
+<summary>Click here for the updated <b>extension.py</b> module </summary>
 
 ```python
 import omni.ext
@@ -481,7 +481,7 @@ Update `on_shutdown` to remove the `viewport_scene` parameters you moved into th
 <br>
 
 <details>
-<summary>Click here for the updated <b>extension.py</b> script </summary>
+<summary>Click here for the updated <b>extension.py</b> module </summary>
 
 ```python
 import omni.ext
@@ -617,7 +617,7 @@ Call this function after `on_model_updated` and name it `update_scale`.
  ```
 
  <details>
- <summary>Click here for the updated `widget_info_manipulator.py` script  </summary>
+ <summary>Click here for the updated `widget_info_manipulator.py` module  </summary>
 
 ```python
 from omni.ui import scene as sc
