@@ -5,7 +5,7 @@
 [![Object Info](exts/omni.example.ui_scene.object_info/data/preview.png)](exts/omni.example.ui_scene.object_info)
 
 ### About
-This extension uses the omni.ui.scene API to add primitive graphics and labels in the viewport above your selected prim. The labels provide the prim path of the selected prim and the prim path of its assigned material.
+This extension uses the omni.ui.scene API to add simple graphics and labels in the viewport above your selected prim. The labels provide the prim path of the selected prim and the prim path of its assigned material.
 
 ### [README](exts/omni.example.ui_scene.object_info)
 See the [README for this extension](exts/omni.example.ui_scene.object_info) to learn more about it including how to use it.
@@ -52,7 +52,7 @@ See the [README for this extension](exts/omni.example.ui_scene.slider_manipulato
 ### [Tutorial](exts/omni.example.ui_scene.slider_manipulator/Tutorial/slider_Manipulator_Tutorial.md)
 Follow a [step-by-step tutorial](exts/omni.example.ui_scene.slider_manipulator/Tutorial/slider_Manipulator_Tutorial.md) that walks you through how to use omni.ui.scene to build this extension.
 
-## Adding These Extensions
+# Adding These Extensions
 
 To add these extensions to your Omniverse app:
 1. Go into: Extension Manager -> Gear Icon -> Extension Search Path
