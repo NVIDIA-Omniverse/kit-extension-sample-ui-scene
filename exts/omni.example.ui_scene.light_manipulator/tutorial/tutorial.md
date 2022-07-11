@@ -2,45 +2,38 @@
 
 # Create a Reusable Light Panel with the Drag and Hover Gestures
 
-[Gestures](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Gestures.html) are a powerful way to allow users to create their scenes with interactable objects. In this tutorial, we will create a light panel where users can alter the size and intensity of the light by dragging on its edges.
+[`Gestures`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Gestures.html) are a powerful way to allow you to create scenes with interactive objects. In this hands-on tutorial you will create a light panel where users can alter the size and intensity of the light by dragging its edges.
 
 ## Learning Objectives
 
-In this guide, we will learn how to:
-* Extend the [Manipulator](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html) class to create a customizable light panel.
-* Use [Gestures](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Gestures.html) to alter how objects are interactable in Omniverse.
+In this tutorial, you will learn how to:
+* Extend the [`Manipulator`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html) class to create a light panel with a basic model based UI.
+* Use [`Gestures`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Gestures.html) to customize and extend an object's UI.
 
-## Table of Content
-1. [Download the Starter Project](#1-download-the-starter-project)
-2. [Setting Line Style](#2-setting-line-style)
-3. [Building the Manipulator Transform](#3-building-the-manipulator-transform)
-4. [Gestures](#4-gestures)
-5. [Adding Intensity](#5-adding-intensity)
-6. [Scaling Everything](#6-scaling-everything)
-7. [Congratulations!](#7-congratulations)
 
 ## Prerequisites
 It is recommended to understand the concepts in the following tutorials before proceeding:
-* How to make an extension by spawning primitives ([Link](https://github.com/NVIDIA-Omniverse/sample-kit-extension-spawnPrims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md))
+* [How to make an extension that spawns primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims/blob/main/exts/omni.example.spawn_prims/tutorial/tutorial.md)
+* [Learn how to add extensions to the Omniverse Extension Manager](https://github.com/NVIDIA-Omniverse/kit-extension-template).
 
-It also required to have the Omniverse Code version `2022.1.4` or newer.
 
-## 1. Download the Starter Project
-To get the assets for this hands-on lab, please clone the `tutorial-start` branch of the `kit-extension-sample-ui-scene` [github repository](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene). 
+> **_NOTE:_** You must use Omniverse Code version `2022.1.2` or newer.
 
-`https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene.git`
 
-Learn how to add extensions to the Omniverse Extension Manager in [this guide](https://github.com/NVIDIA-Omniverse/kit-extension-template).
+## Step 1: Download the Starter Project
+Clone the `tutorial-start` branch of the `kit-extension-sample-ui-scene` repository to get the assets for this tutorial: https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene
+ 
 
-This tutorial will focus on the `light_manipulator.py` file found in the`/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator` directory. To learn more about the other files in the repository, please check the [How to make an extension by spawning primitives](https://github.com/NVIDIA-Omniverse/sample-kit-extension-spawnPrims/blob/main/exts/omni.example.spawnPrims/tutorial/Spawn_PrimsTutorial.md) tutorial.
+This tutorial will focus on the `light_manipulator.py` file found in the `/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator` directory. To learn more about the other files in the repository check out the [How to make an extension that spawns primitives](https://github.com/NVIDIA-Omniverse/kit-extension-sample-spawn-prims/blob/main/exts/omni.example.spawn_prims/tutorial/tutorial.md).
 
-In particular, we will be focusing on the `LightManipulator` class, which will be created as an extension of the [Manipulator](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html) class.
 
-This extension will allow users to create an interactive rectangular light as shown in the image below:
+## Step 2: Familiarize Yourself with `on_build()` of the `LightManipulator` Class
+
+This tutorial will be focusing on the `LightManipulator` class, which is created by extending the [`Manipulator`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html) class. By doing this, it enables you to create an interactive rectangular light, a `LightPanel`, as shown in the image below:
 
 ![](../data/preview.png)
 
-Let's break down the [on_build](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Manipulator.on_build) function, which should look like this:
+`LightManipulator` overrides [`on_build()`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Manipulator.on_build) from `Manipulator` and is where you will be adding the custom code. It should initially look like this:
 
 ```python
 def on_build(self):
@@ -55,7 +48,7 @@ def on_build(self):
     if not prim_path:
         return
     
-    #TODO: Add Step 2.2
+    #TODO: Add Step 3
 
     self.__root_xf = sc.Transform(model.get_as_floats(model.transform))
     with self.__root_xf:
@@ -65,26 +58,27 @@ def on_build(self):
             # Build the shape's transform
             self._build_shape()
             with self._shape_xform:
-                #TODO: Add Step 3.2
+                #TODO: Add Step 4
 
-                #TODO: Add Step 4.2
+                #TODO: Add Step 5
 
-                #TODO: Add Step 5.2
+                #TODO: Add Step 6
 
-                #TODO: Add Step 6.2
+                #TODO: Add Step 7
                 pass
 
 ```
 
-When the manipulator is built, it will be passed a [model](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html#model) as defined in [light_model.py](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py). This model has a number of useful functions such as the ability to get and set the `height`, `width`, and `intensity` of the light. The [get_as_floats](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/18a3cb7f657c1c87be88810bc5544d2ab1efe673/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py#L137) function and the [set_floats](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/18a3cb7f657c1c87be88810bc5544d2ab1efe673/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py#L153) function allows us to retrieve or alter all of these values at once.
+When a `Manipulator` needs updating `on_build()` is called and uses a [`Model`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Manipulator.html#model), as defined in [`light_model.py`](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py). This `self.model` has a number of useful functions such as getting and setting the `height`, `width` and `intensity` of the light. [`get_as_floats()`](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/18a3cb7f657c1c87be88810bc5544d2ab1efe673/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py#L137) and [`set_floats()`](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/18a3cb7f657c1c87be88810bc5544d2ab1efe673/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_model.py#L153) allow you to retrieve or alter all of these values all at once.
 
-If the model is not defined, then there isn't anything to manipulate, and the function ends. Similarly, we are interacting with a selectable `RectLight` which is available to us in the `prim_path` variable. 
+If `self.model` is not set the function ends since there isn't anything to manipulate. Similarly, there must also be a `RectLight` available in `prim_path`. 
 
-## 2. Setting Line Style
 
-### 2.1 Theory
+## Step 3: Setting Line Style of the `LightPanel`
 
-Let's first create the rectangle that users can drag the edges of to alter the width and height of the light panel. It would be nice if it was clear to the user which edge of the rectangle they were currently hovering over with their cursor. To do this, we'll create a `set_thickness` function so hovered edges appear a littler bolder.
+To show the user the `LightPanel` is resizable, and which edge of its rectangle is being hovered over, set the style and thickness of its edges:
+
+Copy the following code under the `# Add Step 3` comment in `on_build()`. This will not render anything in Omniverse yet, but will provide a setup for later.
 
 ```python
 # Style settings, as kwargs
@@ -97,16 +91,22 @@ def set_thickness(sender, shapes, thickness):
     for shape in shapes:
         shape.thickness = thickness
 ```
-### 2.1 Practice
-**TODO:** Copy the above code under the `# Add Step 2.2` comment in `on_build`. This will not render anything in Omniverse yet, but will provide setup for later.
 
-**CHALLENGE (optional):** Want to make the style your own? Try changing the `thickness`, `hover_thickness` and `color` variables to your liking. It may be worth revisiting this code and adjusting over the course of this tutorial.
+ Here you created `set_thickness()` for the `HoverGesture` to use as a callback for adjusting the size of the edge that's being hovered over.
 
-## 3. Building the Manipulator Transform
+**CHALLENGE (optional):** Want to make the style your own? Try changing the `thickness`, `hover_thickness` and `color` variables to your liking. It may be worth revisiting this code and adjusting it over the course of this tutorial.
 
-### 3.1 Theory
 
-If we give our light panel a [Transform](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Transform), we can scale (change the size) of it more easily. To do that, we'll start from the top down, find the root transform of the model (`self.__root_xf`). Then, we'll create a Transform for translation (`self._x_xform`), and then create a Transform for the shape (`self._shape_xform`):
+## Step 4: Building the Manipulator Transform
+
+ 
+To make it easier for the user to scale the LightPanel, give it a  [`Transform`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Transform).
+ 
+
+### Step 4.1: Create a Translation Transform
+
+
+Add this code to `on_build()`:
 
 ```python
 self.__root_xf = sc.Transform(model.get_as_floats(model.transform))
@@ -118,7 +118,13 @@ with self.__root_xf:
         self._build_shape()
 ```
 
-Finally, the `_build_shape()` function sets the scale on the `_shape_xform` using the vector `[x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1]` where x is width, y is the height, and z is the light intensity. In other words, it's a [scale matrix](https://en.wikipedia.org/wiki/Scaling_(geometry)#Using_homogeneous_coordinates).
+This code will start from the top down, store the root `Transform` of the `Model` in `self.__root_xf`. Then, the code creates `self._x_xform`, a `Transform` for translation and it also creates a `Transform` for the shape, `self._shape_xform`:
+
+
+### Step 4.2: Set the Scale
+
+
+Add this code to `on_build()`:
 
 ```python
 def _build_shape(self):
@@ -131,9 +137,15 @@ def _build_shape(self):
         z = self.model.get_as_floats(self.model.intensity) / INTENSITY_SCALE
         self._shape_xform.transform = [x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1]
 ```
+Finally, `_build_shape()` sets the scale on the `_shape_xform` using the vector `[x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1]` where x is width, y is the height, and z is the light intensity. This list is being used as a [scale matrix](https://en.wikipedia.org/wiki/Scaling_(geometry)#Using_homogeneous_coordinates).
 
-### 3.2 Practice
-**TODO:** Now that we've created a transform, let's add a few lines to it. Copy the below code block under the `# Add Step 3.2` comment in `on_build`. Please check the alignment of the python code. Feel free to view the [completed function](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_manipulator.py) as a hint.
+
+
+### Step 4.3: Build the Geometry
+
+Now that the transform has been created you need to render the rectangle's geometry.
+
+Copy the below code block under the `# Add Step 3.2` comment in `on_build()`. Be sure to check the alignment of the python code and feel free to view the [completed function](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_manipulator.py) as a hint.
 
 ```python
 # Build the shape geometry as unit-sized
@@ -148,55 +160,16 @@ shape4 = sc.Line((-h, h, 0), (-h, -h, 0), **shape_style)
 
 There should now be a rectangle viewable in Omniverse.
 
-## 4. Gestures
+## Step 5: Handling Gestures
 
-### 4.1 Theory
 
-[Gestures](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Gestures.html) handle callback data from user input. There are many kinds of Gestures available in Omniverse [listed here](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni-ui-scene-module). In this tutorial, we will focus on the [Hover](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.HoverGesture) and [Drag](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.DragGesture) Gestures.
+[Gestures](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/Gestures.html) handle callback data from user input. [There are many kinds of Gestures  in Omniverse, listed here](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni-ui-scene-module). This tutorial focuses on the [Hover](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.HoverGesture) and [Drag](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.DragGesture) Gestures.
 
-### 4.1.1 The Hover Gesture
+ 
 
-To change the thickness of the edges of our rectangle when we hover on them, we can set the `on_began_fn` (beginning of the hover) and `on_ended_fn` (ending of the hover) to use our `set_thickness` function defines in [2. Setting Line Style](#2-setting-line-style)
+### Step 5.1: Add the `HoverGesture` for the `RectLight`
 
-```python
-vertical_hover_gesture = sc.HoverGesture(
-    on_began_fn=lambda sender: set_thickness(sender, [shape1, shape2], hover_thickness),
-    on_ended_fn=lambda sender: set_thickness(sender, [shape1, shape2], thickness),
-)
-```
-
-Since the rectangle will grow and shrink about its center, we will highlight both of the affected edges to reflect this mirrored behavior. For instance, if we're changing the vertical height of the rectangle, both the top and bottom edges will be highlighted like so:
-
-![](../data/height_s.png)
-
-### 4.1.2 The Drag Gesture
-
-For our light panel, the Drag Gesture will do a number of different things depending on which edge is dragged. We'll extend the base [scene.DragGesture]([Drag](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.DragGesture)) class into `_DragGesture`.
-
-Let's take a look at a key part of the [on_began](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/18a3cb7f657c1c87be88810bc5544d2ab1efe673/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_manipulator.py#L91) function.
-
-```python
-if 0 in self.orientations:
-    self.width_item = self.model.width
-    self._manipulator.model.set_item_value(self.width_item, self.model.get_as_floats(self.width_item))
-if 1 in self.orientations:
-    self.height_item = self.model.height
-    self._manipulator.model.set_item_value(self.height_item, self.model.get_as_floats(self.height_item))
-if 2 in self.orientations or self.is_global:
-    self.intensity_item = self.model.intensity
-    self._manipulator.model.set_item_value(self.intensity_item, self.model.get_as_floats(self.intensity_item))
-```
-
-When we define our gesture, we'll pass in an `orientation` to let it know whether it's for width, height, or intensity. Then, we will alter the respective variable. To build the Gesture, we'll call it like so:
-
-```python
-_DragGesture(manipulator, orientation, flag)
-```
-
-Where `flag` indicates the negative or positive edge (ex the left horizontal edge vs the right horizontal edge).
-
-### 4.2 Practice
-**TODO:** Copy the below code block under the `# Add Step 4.2` comment in `on_build`. Please check that this code aligns with the comment.
+Copy the below code block under the `# Add Step 5.1` comment `on_build()`. Again, make sure that this code aligns with the comment.
 
 ```python
 # add gesture to the lines of the rectangle to update width or height of the light
@@ -214,20 +187,48 @@ horizontal_hover_gesture = sc.HoverGesture(
 shape3.gestures = [_DragGesture(self, [0], [1]), horizontal_hover_gesture]
 shape4.gestures = [_DragGesture(self, [0], [-1]), horizontal_hover_gesture]
 ```
+ 
+To change the thickness of the edges of your `RectLight` while the user hovers over them, set the `on_began_fn()` (beginning of the hover) and `on_ended_fn()` (ending of the hover) to use `set_thickness()` defined in [Step 3: Setting Line Style of the LightPanel](#step-3-setting-line-style-of-the-lightpanel)
 
-## 5. Adding Intensity
+Since the rectangle will grow and shrink about its center, you will highlight both of the affected edges to reflect this mirrored behavior. For instance, if you're changing the vertical height of the rectangle, both the top and bottom edges will be highlighted like so:
 
-### 5.1 Theory
-While we have learned how to manipulate the light's height and width, it would be useful if users can define the intensity of the light also using the `DragGesture`.
+![](../data/height_s.png)
 
-To make it clear to users they are using the panel's local z-axis of our light panel to modify its intensity, we'll use arrows like so:
+### Step 5.2: Analyzing the `DragGesture`
 
-![](../data/intensity_s.png)
+The `DragGesture` will do a number of different things to your light panel depending on which edge is dragged. You'll extend the base [DragGesture]([Drag](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.DragGesture)) class into `_DragGesture`.
 
-We've already defined the mesh for the arrows at the top of `light_manipulator.py` with the `ARROW_P`, `ARROW_VI`, and `ARROW_VC` variables.
+Take a look at a key part of the [`on_began()`](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/18a3cb7f657c1c87be88810bc5544d2ab1efe673/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_manipulator.py#L91) function: 
 
-To create our arrows, we can create a `make_arrow` function like below:
+> **_NOTE:_** Do not copy this code
 
+```python
+if 0 in self.orientations:
+    self.width_item = self.model.width
+    self._manipulator.model.set_item_value(self.width_item, self.model.get_as_floats(self.width_item))
+if 1 in self.orientations:
+    self.height_item = self.model.height
+    self._manipulator.model.set_item_value(self.height_item, self.model.get_as_floats(self.height_item))
+if 2 in self.orientations or self.is_global:
+    self.intensity_item = self.model.intensity
+    self._manipulator.model.set_item_value(self.intensity_item, self.model.get_as_floats(self.intensity_item))
+```
+
+When defining the `Gesture`, you pass in an `Orientation` to let it know whether it's for width, height, or intensity. Then, you will alter the respective variable. Finally, to build the `Gesture`, call it like so:
+
+```python
+_DragGesture(manipulator, orientation, flag)
+```
+
+Where `flag` indicates the negative or positive edge (i.e. the left horizontal edge vs. the right horizontal edge).
+
+## Step 6: Adding Intensity
+
+While you have learned how to manipulate the light's height and width, it would be useful if users could also define the intensity of the light using the `DragGesture`. To make it clear to the user that they are using the panel's local z-axis to modify its intensity, you can use arrows like this:
+![](../data/preview_s.png)
+### Step 6.1: Create Custom Arrows
+
+Add this code to `on_build()`
 ```python
 # create z-axis to indicate the intensity
 z1 = sc.Line((h, h, 0), (h, h, z), **shape_style)
@@ -255,8 +256,13 @@ z2_arrow = sc.Line((-h, -h, z), (-h, -h, z - ARROW_HEIGHT), **shape_style)
 z3_arrow = sc.Line((h, -h, z), (h, -h, z - ARROW_HEIGHT), **shape_style)
 z4_arrow = sc.Line((-h, h, z), (-h, h, z - ARROW_HEIGHT), **shape_style)
 ```
+The arrow's mesh has already been defined at the top of `light_manipulator.py` with the variables `ARROW_P`, `ARROW_VI`, and `ARROW_VC`. `make_arrow()` makes use of these variables to draw the arrows.
 
-While this draws the arrows, we still need to add the HoverGesture to show them. We'll create a `set_visible` function that alters both the visibility of the arrows and the thickness of the edge lines as part of our HoverGesture. Then, we will add The DragGestures in order to change the light intensity while dragging an arrow. 
+While this draws the arrows, you still need to add the HoverGesture to show them...
+
+### Step 6.2: Adding the `HoverGesture` to the Arrows
+
+Add this code to `on_build()`
 
 ```python
 def set_visible(sender, shapes, thickness, arrows, visible):
@@ -277,9 +283,9 @@ z3_arrow.gestures = gestures
 z4_arrow.gestures = gestures
 ```
 
-### 5.2 Practice
-**TODO:** Copy the above `5.1` code blocks under the `# Add Step 5.2` comment in `on_build`. Please check that the code aligns with the comment.
+This code creates a function, `set_visible()`, that alters both the visibility of the arrows and the thickness of the edge lines as part of your `HoverGesture`. Then, adds the `DragGestures` in order to change the light intensity while dragging an arrow. 
 
+ 
 **CHALLENGE (Optional):** Right now, the arrows are always visible regardless if the cursor is hovering over them or not. Can you alter the code so that the arrows only appear when hovering? Only one line needs to be changed. Click the below for a hint.
 
 <details>
@@ -287,18 +293,20 @@ z4_arrow.gestures = gestures
 In <code>on_ended_fn</code>, the <code>visible</code> parameter (the last argument of the function) should be set to <code>False</code>.
 </details>
 
-### 6. Scaling Everything
+### Step 7: Scaling Everything
 
-### 6.1 Theory
-We've implemented all the critical features of the extension so far:
+All the critical features of the extension have been implemented so far:
 * The ability to change the width and height of a light panel
 * The ability to change the intensity of a light panel.
 
-In many 3D Graphics Engines, there is often a shortcut to scale all dimensions of an object at once. Let's add a few small rectangles at the corners of our light panel to allow users to scale width and height at the same time.
+In many 3D apps, there is often a shortcut to scale all of the dimensions of an object at once. Add a few small rectangles to the corners of the `LightPanel` to allow users to scale width and height at the same time.
 
 ![](../data/preview.png)
 
-To do this, we'll start by creating a function (`make_corner_rec`) to draw a [rectangle](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Rectangle) like so:
+
+### Step 7.1: Add Scaling Rectangles 
+
+Add this code to `on_build()`
 
 ```python
 # create 4 rectangles at the corner, and add gesture to update width, height and intensity at the same time
@@ -313,8 +321,11 @@ r2 = make_corner_rect((h - 0.5 * s, h - 0.5 * s, 0))
 r3 = make_corner_rect((-h + 0.5 * s, h - 0.5 * s, 0))
 r4 = make_corner_rect((-h + 0.5 * s, -h + 0.5 * s, 0))
 ```
+This defines the function `make_corner_rec()` to draw a [`rectangle`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Rectangle).
 
-Then, we can create another function (`set_color_and_visible`) in order to highlight all the edges at once with our `HoverGesture`. Then, we'll be passing in multiple orientations (`[0, 1]`) to the `_DragGesture` to indicate we're altering the width and height at the same time. 
+### Step 7.2: Highlight All of the Edges at Once
+
+Add this code to `on_build()`
 
 ```python
 def set_color_and_visible(sender, shapes, thickness, arrows, visible, rects, color):
@@ -335,11 +346,10 @@ r3.gestures = [_DragGesture(self, [0, 1], [-1, 1]), hight_all_gesture]
 r4.gestures = [_DragGesture(self, [0, 1], [-1, -1]), hight_all_gesture]
 ```
 
-### 6.2 Practice
-**TODO:** Copy the above `6.1` code blocks under the `# Add Step 6.2` comment in `on_build`. Please check that the code aligns with the comment.
+You've defined `set_color_and_visible()` in order to highlight all the edges at once with your `HoverGesture`. Then, the code passes in multiple orientations (`[0, 1]`) to the `_DragGesture` to indicate you're altering the width and height at the same time. 
 
+## Step 8: Congratulations!!
 
-## 7. Congratulations!!
-Great job getting through this tutorial. Interested in improving your skills further? Please consider checking out the [Reticle Extension Tutorial](https://github.com/NVIDIA-Omniverse/kit-extension-sample-reticle/blob/main/tutorial/tutorial.md).
+Great job getting through this tutorial. Interested in improving your skills further? [Please consider checking out the Reticle Extension Tutorial](https://github.com/NVIDIA-Omniverse/kit-extension-sample-reticle/blob/main/tutorial/tutorial.md).
 
 ![](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/tutorial/images/logo.png?raw=true)
