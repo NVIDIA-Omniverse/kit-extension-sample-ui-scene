@@ -809,7 +809,7 @@ class MyExtension(omni.ext.IExt):
 ```
 
 ## Step 9.4: Remove start up code
-Remove the start up code that constructs the `ObjInfoModel` object and the code following it that creates the extension window and **Cick Me** button:
+Remove the start up code that constructs the `ObjInfoModel` object and the code following it that creates the extension window and **Click Me** button:
 
 ```python
 ...
