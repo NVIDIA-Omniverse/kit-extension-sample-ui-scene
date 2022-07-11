@@ -82,5 +82,7 @@ You can also just pass a path to create link to:
 > link_app.bat --path "C:/Users/bob/AppData/Local/ov/pkg/create-2022.1.3"
 ```
 
+Running this command adds a symlink to Omniverse Code. This makes intellisense work and lets you easily run the app from the terminal. 
+
 ## Contributing
 The source code for this repository is provided as-is and we are not accepting outside contributions.
