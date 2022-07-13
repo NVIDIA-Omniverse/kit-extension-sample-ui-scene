@@ -206,15 +206,7 @@ class LightManipulator(sc.Manipulator):
         if not prim_path:
             return
 
-        # Style settings, as kwargs
-        thickness = 1
-        hover_thickness = 3
-        color = cl.yellow
-        shape_style = {"thickness": thickness, "color": color}
-
-        def set_thickness(sender, shapes, thickness):
-            for shape in shapes:
-                shape.thickness = thickness
+        #TODO: Add Step 3
 
         self.__root_xf = sc.Transform(model.get_as_floats(model.transform))
         with self.__root_xf:
@@ -224,99 +216,20 @@ class LightManipulator(sc.Manipulator):
                 # Build the shape's transform
                 self._build_shape()
                 with self._shape_xform:
-                    # Build the shape geomtery as unit-sized
-                    h = 0.5
-                    z = -1.0
-                    # the rectangle
-                    shape1 = sc.Line((-h, h, 0), (h, h, 0), **shape_style)
-                    shape2 = sc.Line((-h, -h, 0), (h, -h, 0), **shape_style)
-                    shape3 = sc.Line((h, h, 0), (h, -h, 0), **shape_style)
-                    shape4 = sc.Line((-h, h, 0), (-h, -h, 0), **shape_style)
-                    # add gesture to the lines of the rectangle to update width or height of the light
-                    vertical_hover_gesture = sc.HoverGesture(
-                        on_began_fn=lambda sender: set_thickness(sender, [shape1, shape2], hover_thickness),
-                        on_ended_fn=lambda sender: set_thickness(sender, [shape1, shape2], thickness),
-                    )
-                    shape1.gestures = [_DragGesture(self, [1], [1]), vertical_hover_gesture]
-                    shape2.gestures = [_DragGesture(self, [1], [-1]), vertical_hover_gesture]
+                    #TODO: Add Step 4.1
 
-                    horizontal_hover_gesture = sc.HoverGesture(
-                        on_began_fn=lambda sender: set_thickness(sender, [shape3, shape4], hover_thickness),
-                        on_ended_fn=lambda sender: set_thickness(sender, [shape3, shape4], thickness),
-                    )
-                    shape3.gestures = [_DragGesture(self, [0], [1]), horizontal_hover_gesture]
-                    shape4.gestures = [_DragGesture(self, [0], [-1]), horizontal_hover_gesture]
+                    #TODO: Add Step 4.2
 
-                    # create z-axis to indicate the intensity
-                    z1 = sc.Line((h, h, 0), (h, h, z), **shape_style)
-                    z2 = sc.Line((-h, -h, 0), (-h, -h, z), **shape_style)
-                    z3 = sc.Line((h, -h, 0), (h, -h, z), **shape_style)
-                    z4 = sc.Line((-h, h, 0), (-h, h, z), **shape_style)
+                    #TODO: Add Step 5.1
 
-                    def make_arrow(translate):
-                        vert_count = len(ARROW_VI)
-                        with sc.Transform(
-                            transform=sc.Matrix44.get_translation_matrix(translate[0], translate[1], translate[2])
-                            * sc.Matrix44.get_rotation_matrix(0, -180, 0, True)
-                        ):
-                            return sc.PolygonMesh(ARROW_P, [color] * vert_count, ARROW_VC, ARROW_VI, visible=False)
+                    #TODO: Add Step 6.1
 
-                    # arrows on the z-axis
-                    arrow_1 = make_arrow((h, h, z))
-                    arrow_2 = make_arrow((-h, -h, z))
-                    arrow_3 = make_arrow((h, -h, z))
-                    arrow_4 = make_arrow((-h, h, z))
+                    #TODO: Add Step 6.2
 
-                    # the line underneath the arrow which is where the gesture applies
-                    z1_arrow = sc.Line((h, h, z), (h, h, z - ARROW_HEIGHT), **shape_style)
-                    z2_arrow = sc.Line((-h, -h, z), (-h, -h, z - ARROW_HEIGHT), **shape_style)
-                    z3_arrow = sc.Line((h, -h, z), (h, -h, z - ARROW_HEIGHT), **shape_style)
-                    z4_arrow = sc.Line((-h, h, z), (-h, h, z - ARROW_HEIGHT), **shape_style)
+                    #TODO: Add Step 7.1
 
-                    def set_visible(sender, shapes, thickness, arrows, visible):
-                        set_thickness(sender, shapes, thickness)
-                        for arrow in arrows:
-                            arrow.visible = visible
-
-                    thickness_group = [z1, z1_arrow, z2, z2_arrow, z3, z3_arrow, z4, z4_arrow]
-                    visible_group = [arrow_1, arrow_2, arrow_3, arrow_4]
-                    visible_arrow_gesture = sc.HoverGesture(
-                        on_began_fn=lambda sender: set_visible(sender, thickness_group, hover_thickness, visible_group, True),
-                        on_ended_fn=lambda sender: set_visible(sender, thickness_group, thickness, visible_group, False),
-                    )
-                    gestures = [_DragGesture(self, [2], [-1]), visible_arrow_gesture]
-                    z1_arrow.gestures = gestures
-                    z2_arrow.gestures = gestures
-                    z3_arrow.gestures = gestures
-                    z4_arrow.gestures = gestures
-
-                    # create 4 rectangles at the corner, and add gesture to update width, height and intensity at the same time
-                    s = 0.03
-
-                    def make_corner_rect(translate):
-                        with sc.Transform(transform=sc.Matrix44.get_translation_matrix(translate[0], translate[1], translate[2])):
-                            return sc.Rectangle(s, s, color=0x0)
-
-                    r1 = make_corner_rect((h - 0.5 * s, -h + 0.5 * s, 0))
-                    r2 = make_corner_rect((h - 0.5 * s, h - 0.5 * s, 0))
-                    r3 = make_corner_rect((-h + 0.5 * s, h - 0.5 * s, 0))
-                    r4 = make_corner_rect((-h + 0.5 * s, -h + 0.5 * s, 0))
-
-                    def set_color_and_visible(sender, shapes, thickness, arrows, visible, rects, color):
-                        set_visible(sender, shapes, thickness, arrows, visible)
-                        for rect in rects:
-                            rect.color = color
-
-                    highlight_group = [shape1, shape2, shape3, shape4] + thickness_group
-                    color_group = [r1, r2, r3, r4]
-                    hight_all_gesture = sc.HoverGesture(
-                        on_began_fn=lambda sender: set_color_and_visible(sender, highlight_group, hover_thickness, visible_group, True, color_group, color),
-                        on_ended_fn=lambda sender: set_color_and_visible(sender, highlight_group, thickness, visible_group, False, color_group, 0x0),
-                    )
-                    r1.gestures = [_DragGesture(self, [0, 1], [1, -1]), hight_all_gesture]
-                    r2.gestures = [_DragGesture(self, [0, 1], [1, 1]), hight_all_gesture]
-                    r3.gestures = [_DragGesture(self, [0, 1], [-1, 1]), hight_all_gesture]
-                    r4.gestures = [_DragGesture(self, [0, 1], [-1, -1]), hight_all_gesture]
+                    #TODO: Add Step 7.2
+                    pass
 
     def on_model_updated(self, item):
         # Regenerate the mesh
