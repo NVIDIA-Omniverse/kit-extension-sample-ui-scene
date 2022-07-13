@@ -58,13 +58,19 @@ def on_build(self):
             # Build the shape's transform
             self._build_shape()
             with self._shape_xform:
-                #TODO: Add Step 4
+                #TODO: Add Step 4.1
 
-                #TODO: Add Step 5
+                #TODO: Add Step 4.2
 
-                #TODO: Add Step 6
+                #TODO: Add Step 5.1
 
-                #TODO: Add Step 7
+                #TODO: Add Step 6.1
+
+                #TODO: Add Step 6.2
+
+                #TODO: Add Step 7.1
+
+                #TODO: Add Step 7.2
                 pass
 
 ```
@@ -102,12 +108,9 @@ def set_thickness(sender, shapes, thickness):
  
 To make it easier for the user to scale the LightPanel, give it a  [`Transform`](https://docs.omniverse.nvidia.com/py/kit/source/extensions/omni.ui.scene/docs/index.html#omni.ui_scene.scene.Transform).
  
+A Translation `Transform` is created with the following code:
 
-### Step 4.1: Create a Translation Transform
-
-
-Add this code to `on_build()`:
-
+> **_NOTE:_** Do not copy this code
 ```python
 self.__root_xf = sc.Transform(model.get_as_floats(model.transform))
 with self.__root_xf:
@@ -121,10 +124,10 @@ with self.__root_xf:
 This code will start from the top down, store the root `Transform` of the `Model` in `self.__root_xf`. Then, the code creates `self._x_xform`, a `Transform` for translation and it also creates a `Transform` for the shape, `self._shape_xform`:
 
 
-### Step 4.2: Set the Scale
+### Step 4.1: Set the Scale
 
 
-Add this code to `on_build()`:
+Add this code to `# Add Step 4.1` in `on_build()`:
 
 ```python
 def _build_shape(self):
@@ -141,11 +144,11 @@ Finally, `_build_shape()` sets the scale on the `_shape_xform` using the vector 
 
 
 
-### Step 4.3: Build the Geometry
+### Step 4.2: Build the Geometry
 
 Now that the transform has been created you need to render the rectangle's geometry.
 
-Copy the below code block under the `# Add Step 3.2` comment in `on_build()`. Be sure to check the alignment of the python code and feel free to view the [completed function](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_manipulator.py) as a hint.
+Copy the below code block under the `# Add Step 4.2` comment in `on_build()`. Be sure to check the alignment of the python code and feel free to view the [completed function](https://github.com/NVIDIA-Omniverse/kit-extension-sample-ui-scene/blob/main/exts/omni.example.ui_scene.light_manipulator/omni/example/ui_scene/light_manipulator/light_manipulator.py) as a hint.
 
 ```python
 # Build the shape geometry as unit-sized
@@ -228,7 +231,7 @@ While you have learned how to manipulate the light's height and width, it would 
 ![](../data/preview_s.png)
 ### Step 6.1: Create Custom Arrows
 
-Add this code to `on_build()`
+Add this code to `# Add Step 6.1` in `on_build()`
 ```python
 # create z-axis to indicate the intensity
 z1 = sc.Line((h, h, 0), (h, h, z), **shape_style)
@@ -262,7 +265,8 @@ While this draws the arrows, you still need to add the HoverGesture to show them
 
 ### Step 6.2: Adding the `HoverGesture` to the Arrows
 
-Add this code to `on_build()`
+
+Add this code to `# Add Step 6.2` in `on_build()`
 
 ```python
 def set_visible(sender, shapes, thickness, arrows, visible):
@@ -306,7 +310,8 @@ In many 3D apps, there is often a shortcut to scale all of the dimensions of an 
 
 ### Step 7.1: Add Scaling Rectangles 
 
-Add this code to `on_build()`
+
+Add this code to `# Add Step 7.1` in `on_build()`
 
 ```python
 # create 4 rectangles at the corner, and add gesture to update width, height and intensity at the same time
@@ -325,7 +330,8 @@ This defines the function `make_corner_rec()` to draw a [`rectangle`](https://do
 
 ### Step 7.2: Highlight All of the Edges at Once
 
-Add this code to `on_build()`
+
+Add this code to `# Add Step 7.2` in `on_build()`
 
 ```python
 def set_color_and_visible(sender, shapes, thickness, arrows, visible, rects, color):
