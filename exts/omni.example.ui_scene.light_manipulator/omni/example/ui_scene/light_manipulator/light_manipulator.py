@@ -13,6 +13,8 @@ from omni.ui import color as cl
 import omni.kit
 import omni.kit.commands
 
+from .light_model import LightModel
+
 INTENSITY_SCALE = 500.0
 
 ARROW_WIDTH = 0.015
@@ -70,11 +72,15 @@ class _ViewportLegacyDisableSelection:
         except Exception:
             pass
 
+class _DragManager(sc.GestureManager):
+    def should_prevent(self, gesture, preventer):
+        if gesture.name == "SelectionDrag" and preventer.state == sc.GestureState.BEGAN:
+            return True
 
 class _DragGesture(sc.DragGesture):
-    """"Gesture to disable rectangle selection in the viewport legacy"""
-    def __init__(self, manipulator, orientation, flag):
-        super().__init__()
+    """"Gesture to disable rectangle selection in the viewport legacy"""   
+    def __init__(self, manipulator, orientation, flag, **kwargs):
+        super().__init__(**kwargs)
         self._manipulator = manipulator
         # record this _previous_ray_point to get the mouse moved vector
         self._previous_ray_point = None
@@ -177,8 +183,8 @@ class _DragGesture(sc.DragGesture):
 
 
 class LightManipulator(sc.Manipulator):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, desc:dict):
+        super().__init__(model=LightModel())
         self._shape_xform = None
 
     def __del__(self):
@@ -237,15 +243,15 @@ class LightManipulator(sc.Manipulator):
                         on_began_fn=lambda sender: set_thickness(sender, [shape1, shape2], hover_thickness),
                         on_ended_fn=lambda sender: set_thickness(sender, [shape1, shape2], thickness),
                     )
-                    shape1.gestures = [_DragGesture(self, [1], [1]), vertical_hover_gesture]
-                    shape2.gestures = [_DragGesture(self, [1], [-1]), vertical_hover_gesture]
+                    shape1.gestures = [_DragGesture(self, [1], [1], manager=_DragManager()), vertical_hover_gesture]
+                    shape2.gestures = [_DragGesture(self, [1], [-1], manager=_DragManager()), vertical_hover_gesture]
 
                     horizontal_hover_gesture = sc.HoverGesture(
                         on_began_fn=lambda sender: set_thickness(sender, [shape3, shape4], hover_thickness),
                         on_ended_fn=lambda sender: set_thickness(sender, [shape3, shape4], thickness),
                     )
-                    shape3.gestures = [_DragGesture(self, [0], [1]), horizontal_hover_gesture]
-                    shape4.gestures = [_DragGesture(self, [0], [-1]), horizontal_hover_gesture]
+                    shape3.gestures = [_DragGesture(self, [0], [1], manager=_DragManager()), horizontal_hover_gesture]
+                    shape4.gestures = [_DragGesture(self, [0], [-1], manager=_DragManager()), horizontal_hover_gesture]
 
                     # create z-axis to indicate the intensity
                     z1 = sc.Line((h, h, 0), (h, h, z), **shape_style)
@@ -284,7 +290,7 @@ class LightManipulator(sc.Manipulator):
                         on_began_fn=lambda sender: set_visible(sender, thickness_group, hover_thickness, visible_group, True),
                         on_ended_fn=lambda sender: set_visible(sender, thickness_group, thickness, visible_group, False),
                     )
-                    gestures = [_DragGesture(self, [2], [-1]), visible_arrow_gesture]
+                    gestures = [_DragGesture(self, [2], [-1], manager=_DragManager()), visible_arrow_gesture]
                     z1_arrow.gestures = gestures
                     z2_arrow.gestures = gestures
                     z3_arrow.gestures = gestures
