@@ -8,9 +8,9 @@
 #
 __all__ = ["WidgetInfoExtension"]
 
-from .widget_info_scene import WidgetInfoScene
-from omni.kit.viewport.utility import get_active_viewport_window
-import carb
+from .widget_info_manipulator import WidgetInfoManipulator
+from .widget_info_model import WidgetInfoModel
+from omni.kit.viewport.registry import RegisterScene
 import omni.ext
 
 
@@ -18,19 +18,9 @@ class WidgetInfoExtension(omni.ext.IExt):
     """The entry point to the extension"""
 
     def on_startup(self, ext_id):
-        # Get the active (which at startup is the default Viewport)
-        viewport_window = get_active_viewport_window()
-
-        # Issue an error if there is no Viewport
-        if not viewport_window:
-            carb.log_warn(f"No Viewport Window to add {ext_id} scene to")
-            self._widget_info_viewport = None
-            return
-
-        # Build out the scene
-        self._widget_info_viewport = WidgetInfoScene(viewport_window, ext_id)
+        self._manipulator_registry = RegisterScene(
+            lambda *_: WidgetInfoManipulator(model=WidgetInfoModel()), "WidgetInfoManipulator"
+        )
 
     def on_shutdown(self):
-        if self._widget_info_viewport:
-            self._widget_info_viewport.destroy()
-            self._widget_info_viewport = None
+        self._manipulator_registry = None

@@ -129,7 +129,15 @@ class WidgetInfoModel(sc.AbstractManipulatorModel):
 
         prim = stage.GetPrimAtPath(prim_paths[0])
 
-        if prim.IsA(UsdLux.Light):
+        if hasattr(UsdLux, "Light"):
+            light_types = [UsdLux.Light]
+        elif hasattr(UsdLux, "BoundableLightBase"):
+            light_types = [UsdLux.BoundableLightBase, UsdLux.NonboundableLightBase]
+        else:
+            light_types = []
+        is_light = any(prim.IsA(t) for t in light_types)
+
+        if is_light:
             print("Light")
             self.material_name = "I am a Light"
         elif prim.IsA(UsdGeom.Imageable):
